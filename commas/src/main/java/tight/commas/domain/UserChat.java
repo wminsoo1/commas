@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class UserChat {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue
     @Column(name = "user_chat_id")
     private Long id;
 

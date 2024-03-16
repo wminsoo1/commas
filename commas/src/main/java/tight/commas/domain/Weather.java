@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class weather {
+public class Weather {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue
     @Column(name = "weather_id")
     private Long id;
 
