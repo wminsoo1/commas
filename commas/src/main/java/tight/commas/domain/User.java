@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class User {
+public class User extends BaseTimeEntity{
 
     @Id @GeneratedValue
     @Column(name = "user_id")

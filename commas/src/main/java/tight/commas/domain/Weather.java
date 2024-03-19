@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class Weather {
+public class Weather extends BaseTimeEntity{
 
     @Id @GeneratedValue
     @Column(name = "weather_id")
