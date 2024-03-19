@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class Park {
+public class Park extends BaseTimeEntity{
 
     @Id @GeneratedValue
     @Column(name = "park_id")

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Review {
+public class Review extends BaseTimeEntity{
 
     @Id @GeneratedValue
     @Column(name = "review_id")
