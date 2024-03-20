@@ -1,4 +1,4 @@
-package tight.commas;
+package tight.commas.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
