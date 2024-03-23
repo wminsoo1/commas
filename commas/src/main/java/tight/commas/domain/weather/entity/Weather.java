@@ -1,11 +1,12 @@
-package tight.commas.domain;
+package tight.commas.domain.weather.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import tight.commas.domain.BaseTimeEntity;
 
 @Entity
 @Getter
-public class Weather extends BaseTimeEntity{
+public class Weather extends BaseTimeEntity {
 
     @Id @GeneratedValue
     @Column(name = "weather_id")
