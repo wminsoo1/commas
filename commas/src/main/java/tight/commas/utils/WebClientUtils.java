@@ -1,9 +1,12 @@
 package tight.commas.utils;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -12,8 +15,21 @@ public class WebClientUtils {
 
     private final WebClient webClient;
 
+    public static WebClient createWebClient(String baseUrl) {
+        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
+        factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
+
+        return WebClient.builder()
+                .uriBuilderFactory(factory)
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
+
     public <T> Mono<T> get(String url, Class<T> responseDtoClass) {
-        return this.webClient.method(HttpMethod.GET)
+        WebClient client = createWebClient(url);
+        return client.method(HttpMethod.GET)
                 .uri(url)
                 .retrieve()
                 .bodyToMono(responseDtoClass);
