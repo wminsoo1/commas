@@ -1,11 +1,15 @@
-package tight.commas.domain;
+package tight.commas.domain.park.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import tight.commas.domain.Address;
+import tight.commas.domain.BaseTimeEntity;
+import tight.commas.domain.Chat;
+import tight.commas.domain.User;
 
 @Entity
 @Getter
-public class Park extends BaseTimeEntity{
+public class Park extends BaseTimeEntity {
 
     @Id @GeneratedValue
     @Column(name = "park_id")
@@ -23,9 +27,6 @@ public class Park extends BaseTimeEntity{
     private Address address;
 
     private String imageUrl;
-
-    private int openTime;
-    private int endTime;
 
     private int phoneNumber;
 
