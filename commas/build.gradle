@@ -32,7 +32,9 @@ dependencies {
 
 	//webclient
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'io.projectreactor:reactor-spring'
+	// implementation 'io.projectreactor:reactor-spring'
+	implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.106.Final:osx-aarch_64'
 }
 
 tasks.named('test') {
