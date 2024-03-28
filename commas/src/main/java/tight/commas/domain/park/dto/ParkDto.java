@@ -11,8 +11,8 @@ public class ParkDto {
     private String mainEquip;
     private String mainPlant;
     private String imageUrl;
-    private double latitude;
-    private double longitude;
+    private Address address;
+    private String lang;
 
 
     public ParkDto(String lang, String name, Address address) {

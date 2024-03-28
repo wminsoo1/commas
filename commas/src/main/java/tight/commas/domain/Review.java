@@ -2,6 +2,7 @@ package tight.commas.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import tight.commas.domain.park.entity.Park;
 
 import java.time.LocalDateTime;
 
