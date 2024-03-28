@@ -63,7 +63,6 @@ public class ParkApi {
 
         return parkList.stream()
                 .map(parkData -> {
-                    int id = Integer.parseInt((String) parkData.get("P_IDX"));
                     String name = (String) parkData.get("P_PARK");
                     String content = (String) parkData.get("P_LIST_CONTENT");
                     String addressStr = (String) parkData.get("P_ADDR");
@@ -73,7 +72,7 @@ public class ParkApi {
                     double latitude = ((String) parkData.get("LATITUDE")).isEmpty() ? 0.0 : Double.parseDouble((String) parkData.get("LATITUDE"));
                     double longitude = ((String) parkData.get("LONGITUDE")).isEmpty() ? 0.0 : Double.parseDouble((String) parkData.get("LONGITUDE"));
                     Address address = new Address(addressStr, latitude, longitude);
-                    return new ParkDto(id, name, content, address, mainEquip, mainPlant, imageUrl);
+                    return new ParkDto(name, content, address, mainEquip, mainPlant, imageUrl);
                 }).collect(Collectors.toList());
     }
 
@@ -133,7 +132,6 @@ public class ParkApi {
 
         List<ParkDto> parkDtoList = parkList.stream()
                 .map(parkData -> {
-                    int id = Integer.parseInt((String) parkData.get("P_IDX"));
                     String name = (String) parkData.get("P_PARK");
                     String content = (String) parkData.get("P_LIST_CONTENT");
                     String addressStr = (String) parkData.get("P_ADDR");
@@ -143,7 +141,7 @@ public class ParkApi {
                     double latitude = parkData.get("LATITUDE") != null ? Double.parseDouble((String) parkData.get("LATITUDE")) : null;
                     double longitude = parkData.get("LONGITUDE") != null ? Double.parseDouble((String) parkData.get("LONGITUDE")) : null;
                     Address address = new Address(addressStr, latitude, longitude);
-                    return new ParkDto(id, name, content, address, mainEquip, mainPlant, imageUrl);
+                    return new ParkDto(name, content, address, mainEquip, mainPlant, imageUrl);
                 }).collect(Collectors.toList());
 
         return new PageImpl<>(parkDtoList, PageRequest.of(pageNum, pageSize), totalCount);
