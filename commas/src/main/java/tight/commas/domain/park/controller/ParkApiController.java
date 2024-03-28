@@ -1,36 +1,39 @@
 package tight.commas.domain.park.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tight.commas.domain.park.api.ParkApi;
 import tight.commas.domain.park.dto.ParkDto;
-
-import java.util.List;
+import tight.commas.domain.park.service.ParkService;
 
 @RestController
 public class ParkApiController {
 
-    private final ParkApi parkApi;
+    private final ParkService parkService;
 
     @Autowired
-    public ParkApiController(ParkApi parkApi) {
-        this.parkApi = parkApi;
+    public ParkApiController(ParkService parkService) {
+        this.parkService = parkService;
     }
 
     @GetMapping("/api/park")
-    public ResponseEntity<List<ParkDto>> getParkInfo() {
+    public ResponseEntity<Page<ParkDto>> getPagedParkInfo(
+            @RequestParam(name =  "pageSize", defaultValue = "10") int pageSize) {
 
-        return ResponseEntity.ok(parkApi.getParkInfo());
+        Page<ParkDto> parkPage = parkService.getAllParks(pageSize);
+        return ResponseEntity.ok(parkPage);
     }
 
-    @GetMapping("/api/naturalTourism")
-    public ResponseEntity<List<ParkDto>> getNaturalTourismInfo() {
+    @GetMapping("/api/natural-tourism")
+    public ResponseEntity<Page<ParkDto>> getPagedNaturalTourismInfo(
+            @RequestParam(name =  "pageSize", defaultValue = "10") int pageSize) {
 
-        return ResponseEntity.ok(parkApi.getNaturalTourismInfo());
+        Page<ParkDto> naturalTourismPage = parkService.getAllNaturalTourismInfo(pageSize);
+        return ResponseEntity.ok(naturalTourismPage);
     }
 }
-
-
-
