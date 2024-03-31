@@ -7,6 +7,7 @@ import tight.commas.domain.BaseTimeEntity;
 import tight.commas.domain.Chat;
 import tight.commas.domain.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,6 +25,9 @@ public class Park extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id")
     private Chat chat;
+
+    @OneToMany(mappedBy = "park", cascade = CascadeType.ALL)
+    private List<ParkTag> parkTags = new ArrayList<>();
 
     private String parkName;
 
@@ -58,5 +62,4 @@ public class Park extends BaseTimeEntity {
         this.parkName = name;
         this.address = address;
     }
-
 }
