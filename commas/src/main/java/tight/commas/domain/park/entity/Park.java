@@ -5,7 +5,7 @@ import lombok.Getter;
 import tight.commas.domain.Address;
 import tight.commas.domain.BaseTimeEntity;
 import tight.commas.domain.Chat;
-import tight.commas.domain.User;
+import tight.commas.domain.user.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;

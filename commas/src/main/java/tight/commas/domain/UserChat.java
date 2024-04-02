@@ -2,6 +2,7 @@ package tight.commas.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import tight.commas.domain.user.entity.User;
 
 @Entity
 @Getter
