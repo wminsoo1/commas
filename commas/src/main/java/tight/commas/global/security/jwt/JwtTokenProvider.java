@@ -1,9 +1,6 @@
 package tight.commas.global.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +77,8 @@ public class JwtTokenProvider {
 
     public boolean isTokenValid(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(jwtKey).parseClaimsJws(token);
+            JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(jwtKey).build();
+            Jws<Claims> claims = jwtParser.parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
