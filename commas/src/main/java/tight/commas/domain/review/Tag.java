@@ -1,4 +1,4 @@
-package tight.commas.domain.park;
+package tight.commas.domain.review;
 
 import lombok.Getter;
 
@@ -9,7 +9,6 @@ public enum Tag {
     PICNIC("소풍하기 좋은"),
     BIKE_TRAIL("자전거 트레일이 있는"),
     DOG_FRIENDLY("반려견 동반 가능한");
-
 
     private final String description;
 
