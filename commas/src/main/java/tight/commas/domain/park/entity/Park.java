@@ -26,9 +26,6 @@ public class Park extends BaseTimeEntity {
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
-    @OneToMany(mappedBy = "park", cascade = CascadeType.ALL)
-    private List<ParkTag> parkTags = new ArrayList<>();
-
     private String parkName;
 
     @Embedded
