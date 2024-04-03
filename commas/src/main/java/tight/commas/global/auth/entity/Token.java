@@ -3,6 +3,7 @@ package tight.commas.global.auth.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import tight.commas.domain.user.entity.User;
+import tight.commas.global.auth.TokenType;
 
 @Entity
 @Data

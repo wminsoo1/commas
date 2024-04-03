@@ -1,4 +1,4 @@
-package tight.commas.global.auth.entity;
+package tight.commas.global.auth;
 
 public enum TokenType {
 
