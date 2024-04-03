@@ -1,5 +1,6 @@
 package tight.commas.global.auth.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,11 +11,12 @@ import tight.commas.domain.user.repository.UserRepository;
 import tight.commas.global.auth.dto.AuthenticationDto;
 import tight.commas.global.auth.dto.RegisterDto;
 import tight.commas.global.auth.entity.Token;
-import tight.commas.global.auth.entity.TokenType;
+import tight.commas.global.auth.TokenType;
 import tight.commas.global.auth.repository.TokenRepository;
 import tight.commas.global.security.jwt.JwtTokenProvider;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthenticationService {
 
