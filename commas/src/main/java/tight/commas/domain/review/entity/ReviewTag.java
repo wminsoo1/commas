@@ -28,9 +28,19 @@ public class ReviewTag {
     // 연관관계 편의 메서드
     public void addReview(Review review) {
         this.review = review;
+        review.getReviewTags().add(this);
     }
 
     public void setTag(Tag tag) {
         this.tag = tag;
+    }
+
+    @Override
+    public String toString() {
+        return "ReviewTag{" +
+                "id=" + id +
+                ", tag=" + tag +
+                ", review=" + review +
+                '}';
     }
 }

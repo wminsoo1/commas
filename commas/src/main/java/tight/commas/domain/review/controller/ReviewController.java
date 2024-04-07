@@ -30,7 +30,7 @@ public class ReviewController {
             @RequestBody ReviewPostDto review
         ) {
 
-        reviewService.postReview(parkId, user, review);
+        reviewService.postReviewV2(parkId, user, review);
 
         return ResponseEntity.ok(null);
     }

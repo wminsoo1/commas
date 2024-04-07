@@ -5,9 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.api.ParkApi;
+import tight.commas.domain.park.dto.ParkCardDtoV2;
 import tight.commas.domain.park.dto.ParkDto;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.park.repository.ParkRepository;
@@ -131,5 +134,9 @@ public class ParkService {
                 .collect(Collectors.toList());
 
         parkRepository.saveAll(parksToSave);
+    }
+
+    public Page<ParkCardDtoV2> parkCardDtoV2Page(ParkSearchCondition condition, Pageable pageable) {
+        return parkRepository.parkCardSearchV2(condition, pageable);
     }
 }
