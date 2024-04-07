@@ -1,5 +1,6 @@
 package tight.commas.domain.review.service;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import tight.commas.domain.review.repository.ReviewTagRepository;
 import tight.commas.domain.user.dto.UserDto;
 import tight.commas.domain.user.entity.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,6 +27,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewTagRepository reviewTagRepository;
     private final ParkRepository parkRepository;
+    private final EntityManager em;
 
     public List<ReviewDto> getReview(Long parkId) {
 
@@ -69,6 +72,24 @@ public class ReviewService {
 
         reviewTagRepository.saveAll(reviewTags);
         reviewRepository.save(review);
+    }
+
+    public void postReviewV2(Long parkId, User user, ReviewPostDto reviewDto) {
+
+        Park park = parkRepository.findById(parkId)
+                .orElseThrow(() -> new RuntimeException("해당 장소가 존재하지 않습니다."));
+        Review review = new Review(user, park, reviewDto.getDescription(), reviewDto.getStarScore());
+
+        em.persist(review);
+        List<ReviewTag> reviewTags = new ArrayList<>();
+        for (String tag : reviewDto.getReviewTags()) {
+            ReviewTag reviewTag = new ReviewTag();
+            em.persist(reviewTag);
+            reviewTag.setTag(Tag.valueOf(tag));
+            reviewTag.addReview(review);
+            reviewTags.add(reviewTag);
+        }
+
     }
 }
 
