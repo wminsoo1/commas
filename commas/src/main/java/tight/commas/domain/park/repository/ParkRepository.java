@@ -8,6 +8,6 @@ import tight.commas.domain.park.dto.ParkDto;
 import tight.commas.domain.park.entity.Park;
 
 @Repository
-public interface ParkRepository extends JpaRepository<Park, Long> {
+public interface ParkRepository extends JpaRepository<Park, Long>, ParkRepositoryCustom {
     Park findByParkName(String parkName);
 }
