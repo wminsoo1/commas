@@ -31,7 +31,7 @@ public class ReviewService {
 
     public List<ReviewDto> getReview(Long parkId) {
 
-        List<Review> reviews = reviewRepository.findALlByParkId(parkId);
+        List<Review> reviews = reviewRepository.findAllByParkId(parkId);
 
         return reviews.stream().map(
                 review -> ReviewDto.builder()
@@ -91,5 +91,6 @@ public class ReviewService {
         }
 
     }
+
 }
 
