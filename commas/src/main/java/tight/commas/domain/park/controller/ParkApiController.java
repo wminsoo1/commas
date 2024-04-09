@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.dto.ParkCardDtoV2;
 import tight.commas.domain.park.dto.ParkDto;
+import tight.commas.domain.park.dto.ParkReviewDetailDto;
 import tight.commas.domain.park.service.ParkService;
 import tight.commas.domain.review.Tag;
 
@@ -50,5 +51,13 @@ public class ParkApiController {
 
         Page<ParkCardDtoV2> parkCardDtoV2s = parkService.parkCardDtoV2Page(condition, pageable);
         return ResponseEntity.ok(parkCardDtoV2s);
+    }
+
+    @GetMapping("/api/listpage/{id}")
+    public ResponseEntity<ParkReviewDetailDto> getParkDetail(
+            @PathVariable("id") Long parkId) {
+
+        ParkReviewDetailDto reviewParkDetailDto = parkService.getReviewParkDetailDto(parkId);
+        return ResponseEntity.ok(reviewParkDetailDto);
     }
 }

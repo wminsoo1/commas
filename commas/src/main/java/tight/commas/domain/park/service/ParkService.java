@@ -12,8 +12,12 @@ import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.api.ParkApi;
 import tight.commas.domain.park.dto.ParkCardDtoV2;
 import tight.commas.domain.park.dto.ParkDto;
+import tight.commas.domain.park.dto.ParkReviewDescriptionDto;
+import tight.commas.domain.park.dto.ParkReviewDetailDto;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.park.repository.ParkRepository;
+import tight.commas.domain.review.entity.Review;
+import tight.commas.domain.review.repository.ReviewRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,7 @@ public class ParkService {
     private final ParkApi parkApi;
     private final ParkRepository parkRepository;
     private final EntityManager em;
+    private final ReviewRepository reviewRepository;
 
     public Page<ParkDto> getAllParks(int pageSize) {
         List<ParkDto> allParkDtoList = new ArrayList<>();
@@ -138,5 +143,17 @@ public class ParkService {
 
     public Page<ParkCardDtoV2> parkCardDtoV2Page(ParkSearchCondition condition, Pageable pageable) {
         return parkRepository.parkCardSearchV2(condition, pageable);
+    }
+
+    //파크 상세 조회
+    public ParkReviewDetailDto getReviewParkDetailDto(Long parkId) {
+        Park findPark = parkRepository.findById(parkId).orElse(null);
+        List<Review> fetchJoinAllByParkId = reviewRepository.findFetchJoinAllByParkId(parkId);
+
+        List<ParkReviewDescriptionDto> parkReviewDescriptionDtos = fetchJoinAllByParkId.stream()
+                .map(ParkReviewDescriptionDto::new)
+                .toList();
+
+        return new ParkReviewDetailDto(findPark, parkReviewDescriptionDtos);
     }
 }
