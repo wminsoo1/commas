@@ -12,6 +12,9 @@ public interface ParkRepositoryCustom {
     Page<ParkCardDto> parkCardSearch(ParkSearchCondition condition, Pageable pageable);
     Page<ParkCardDtoV2> parkCardSearchV2(ParkSearchCondition condition, Pageable pageable);
     Page<ParkCardDtoV2> parkCardSearchV3(ParkSearchCondition condition, Pageable pageable);
+    Page<ParkCardDtoV2> parkCardSearchV4(ParkSearchCondition condition, Pageable pageable);
+
+    Page<ParkCardDtoV2> getParkCardDtoV2(Pageable pageable);
 
     List<Long> example(ParkSearchCondition condition);
 }
