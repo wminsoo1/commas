@@ -87,12 +87,24 @@ class ParkRepositoryImplTest {
         reviewDto1.setReviewTags(tag1); // 리뷰 태그 설정
         ReviewPostDto reviewDto2 = new ReviewPostDto();
         reviewDto2.setDescription("Description2"); // 리뷰 설명 설정
-        reviewDto2.setStarScore(5); // 리뷰 별점 설정
-        List<String> tag2 = Arrays.asList("PRETTY", "PICNIC");
+        reviewDto2.setStarScore(3); // 리뷰 별점 설정
+        List<String> tag2 = Arrays.asList("WALK", "PRETTY", "DOG_FRIENDLY");
         reviewDto2.setReviewTags(tag2); // 리뷰 태그 설정
+        ReviewPostDto reviewDto3 = new ReviewPostDto();
+        reviewDto3.setDescription("Description3"); // 리뷰 설명 설정
+        reviewDto3.setStarScore(2); // 리뷰 별점 설정
+        List<String> tag3 = Arrays.asList("WALK", "PRETTY", "BIKE_TRAIL", "DOG_FRIENDLY");
+        reviewDto3.setReviewTags(tag3); // 리뷰 태그 설정
+        ReviewPostDto reviewDto4 = new ReviewPostDto();
+        reviewDto4.setDescription("Description4"); // 리뷰 설명 설정
+        reviewDto4.setStarScore(1); // 리뷰 별점 설정
+        List<String> tag4 = Arrays.asList("WALK", "PRETTY", "DOG_FRIENDLY");
+        reviewDto4.setReviewTags(tag4); // 리뷰 태그 설정
 
         reviewService.postReviewV2(1L, user, reviewDto1);
-        reviewService.postReviewV2(2L, user, reviewDto2);
+        reviewService.postReviewV2(1L, user, reviewDto2);
+        reviewService.postReviewV2(1L, user, reviewDto3);
+        reviewService.postReviewV2(1L, user, reviewDto4);
         em.flush();
         em.clear();
     }
@@ -209,6 +221,28 @@ class ParkRepositoryImplTest {
         System.out.println("========================================");
         for (ParkCardDtoV2 parkCardDto : parkCardDtos) {
             System.out.println("parkCardDto = " + parkCardDto);
+        }
+    }
+
+    @Test
+    void getParkCardDtoV2() {
+        Page<ParkCardDtoV2> parkCard = parkRepository.getParkCardDtoV2(PageRequest.of(0, 10));
+        for (ParkCardDtoV2 parkCardDtoV2 : parkCard) {
+            System.out.println("parkCardDtoV2 = " + parkCardDtoV2);
+        }
+    }
+
+    @Test
+    void parkCardSearchV4() {
+        ParkSearchCondition condition = new ParkSearchCondition();
+        condition.setParkName("");
+        List<Tag> tags = Arrays.asList(PICNIC);
+        condition.setTags(tags);
+        System.out.println("==================================");
+        Page<ParkCardDtoV2> parkCardDtoV2s = parkRepository.parkCardSearchV4(condition, PageRequest.of(0, 10));
+        System.out.println("==================================");
+        for (ParkCardDtoV2 parkCardDtoV2 : parkCardDtoV2s) {
+            System.out.println("parkCardDtoV2 = " + parkCardDtoV2);
         }
     }
 }

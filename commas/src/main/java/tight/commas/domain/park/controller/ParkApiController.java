@@ -53,11 +53,18 @@ public class ParkApiController {
         return ResponseEntity.ok(parkCardDtoV2s);
     }
 
-    @GetMapping("/api/listpage/{id}")
+    @GetMapping("/api/listpage/{parkId}")
     public ResponseEntity<ParkReviewDetailDto> getParkDetail(
-            @PathVariable("id") Long parkId) {
+            @PathVariable("parkId") Long parkId) {
 
         ParkReviewDetailDto reviewParkDetailDto = parkService.getReviewParkDetailDto(parkId);
         return ResponseEntity.ok(reviewParkDetailDto);
+    }
+
+    @GetMapping("api/listpage")
+    public ResponseEntity<Page<ParkCardDtoV2>> getParkListPage(
+            Pageable pageable) {
+        Page<ParkCardDtoV2> parkCard = parkService.getParkCard(pageable);
+        return ResponseEntity.ok(parkCard);
     }
 }

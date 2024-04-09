@@ -15,6 +15,8 @@ import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.dto.ParkCardDto;
 import tight.commas.domain.park.dto.ParkCardDtoV2;
 import tight.commas.domain.park.dto.QParkCardDto;
+import tight.commas.domain.park.dto.QParkCardDtoV2;
+import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.park.entity.QPark;
 import tight.commas.domain.review.Tag;
 import tight.commas.domain.review.entity.QReview;
@@ -24,6 +26,8 @@ import tight.commas.domain.review.entity.ReviewTag;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static tight.commas.domain.park.entity.QPark.*;
@@ -232,6 +236,103 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
 
         return reviewIds;
     }
+
+
+    @Override //파크 리스트 조회
+    public Page<ParkCardDtoV2> getParkCardDtoV2(Pageable pageable) {
+
+        List<Review> reviewList = queryFactory
+                .selectFrom(review)
+                .leftJoin(review.park, park)
+                .fetchJoin()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Map<Park, List<Review>> parkReviewMap  = reviewList.stream()
+                .collect(Collectors.groupingBy(Review::getPark));
+
+        List<ParkCardDtoV2> parkCardDtoList  = parkReviewMap.entrySet().stream()
+                .map(entry -> {
+                    Park keyPark = entry.getKey();
+                    List<Review> reviewsInPark = entry.getValue();
+
+                    Map<Tag, Long> tagCounts = reviewsInPark.stream()
+                            .flatMap(review -> review.getReviewTags().stream())
+                            .collect(Collectors.groupingBy(ReviewTag::getTag, Collectors.counting()));
+
+                    List<Tag> topTags = tagCounts.entrySet().stream()
+                            .sorted(Map.Entry.<Tag, Long>comparingByValue().reversed())
+                            .limit(3)
+                            .map(Map.Entry::getKey)
+                            .toList();
+
+                    return new ParkCardDtoV2(keyPark, topTags);
+                }).toList();
+
+        List<ParkCardDtoV2> parkCardDtoV2List = queryFactory
+                .select(new QParkCardDtoV2(
+                        park.id,
+                        park.parkName,
+                        park.address,
+                        park.imageUrl))
+                .from(park)
+                .fetch();
+
+        for (ParkCardDtoV2 parkCardDtoV2 : parkCardDtoV2List) {
+            for (ParkCardDtoV2 parkCardDto : parkCardDtoList) {
+                if (parkCardDtoV2.getParkId().equals(parkCardDto.getParkId())) {
+                    parkCardDtoV2.setParkName(parkCardDto.getParkName());
+                    parkCardDtoV2.setAddress(parkCardDto.getAddress());
+                    parkCardDtoV2.setImageUrl(parkCardDto.getImageUrl());
+                    parkCardDtoV2.setReviewTags(parkCardDto.getReviewTags());
+                    break;
+                }
+            }
+        }
+
+
+        return new PageImpl<>(parkCardDtoV2List, pageable, parkCardDtoList.size());
+    }
+
+    @Override //파크 검색 및 태그 필터
+    public Page<ParkCardDtoV2> parkCardSearchV4(ParkSearchCondition condition, Pageable pageable) {
+        List<Review> reviewList = findByParkNameContaining(condition, pageable);
+
+        Map<Park, List<Review>> parkReviewMap  = reviewList.stream()
+                .collect(Collectors.groupingBy(Review::getPark));
+
+        List<ParkCardDtoV2> parkCardDtoList  = parkReviewMap.entrySet().stream()
+                .map(entry -> {
+                    Park keyPark = entry.getKey();
+                    List<Review> reviewsInPark = entry.getValue();
+
+                    Map<Tag, Long> tagCounts = reviewsInPark.stream()
+                            .flatMap(review -> review.getReviewTags().stream())
+                            .collect(Collectors.groupingBy(ReviewTag::getTag, Collectors.counting()));
+
+                    List<Tag> topTags = tagCounts.entrySet().stream()
+                            .sorted(Map.Entry.<Tag, Long>comparingByValue().reversed())
+                            .limit(3)
+                            .map(Map.Entry::getKey)
+                            .toList();
+
+                    return new ParkCardDtoV2(keyPark, topTags);
+                }).toList();
+
+        // condition의 태그가 null이면 빈 리스트로 초기화합니다.
+        List<Tag> tags = condition.getTags() != null ? condition.getTags() : Collections.emptyList();
+
+        // condition의 태그가 null이 아닌 경우에만 필터링을 수행합니다.
+        if (!tags.isEmpty()) {
+            parkCardDtoList = parkCardDtoList.stream()
+                    .filter(parkCardDtoV2 -> parkCardDtoV2.getReviewTags().containsAll(tags))
+                    .toList();
+        }
+
+        return new PageImpl<>(parkCardDtoList, pageable, parkCardDtoList.size());
+    }
+
 
 //    @Override
 //    public Page<ParkDto> search(ParkSearchCondition condition, Pageable pageable) {

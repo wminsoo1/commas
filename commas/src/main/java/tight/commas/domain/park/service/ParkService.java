@@ -142,7 +142,7 @@ public class ParkService {
     }
 
     public Page<ParkCardDtoV2> parkCardDtoV2Page(ParkSearchCondition condition, Pageable pageable) {
-        return parkRepository.parkCardSearchV2(condition, pageable);
+        return parkRepository.parkCardSearchV4(condition, pageable);
     }
 
     //파크 상세 조회
@@ -155,5 +155,10 @@ public class ParkService {
                 .toList();
 
         return new ParkReviewDetailDto(findPark, parkReviewDescriptionDtos);
+    }
+
+    //파크카드 조회
+    public Page<ParkCardDtoV2> getParkCard(Pageable pageable) {
+        return parkRepository.getParkCardDtoV2(pageable);
     }
 }
