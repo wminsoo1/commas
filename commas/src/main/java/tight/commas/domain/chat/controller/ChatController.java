@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import tight.commas.domain.chat.dto.ChatDto;
+import tight.commas.domain.chat.dto.RoomIdDto;
 import tight.commas.domain.chat.entity.Chat;
 import tight.commas.domain.chat.service.ChatService;
 
@@ -29,8 +30,8 @@ public class ChatController {
         chatService.sendMessage(message);
     }
 
-    @PostMapping("/room")
-    public ResponseEntity<List<Chat>> getRoom(@RequestBody String roomId) {
+    @PostMapping("/chat/room")
+    public ResponseEntity<List<Chat>> getRoom(@RequestBody RoomIdDto roomId) {
         List<Chat> chatList = chatService.getChatsByRoomId(roomId);
         return ResponseEntity.ok(chatList);
     }

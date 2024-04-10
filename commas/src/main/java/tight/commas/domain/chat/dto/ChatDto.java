@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Getter
 public class ChatDto {
     private String roomId;
-    private String writer;
+    private Long writer;
     private String message;
     private LocalDateTime sendDate;
 
