@@ -17,6 +17,7 @@ import tight.commas.domain.review.Tag;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/park")
 public class ParkApiController {
 
     private final ParkService parkService;
@@ -26,25 +27,7 @@ public class ParkApiController {
         this.parkService = parkService;
     }
 
-    @GetMapping("/api/park")
-    public ResponseEntity<Page<ParkDto>> getPagedParkInfo(
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
-
-        Page<ParkDto> parkPage = parkService.getAllParks(pageSize);
-        parkService.saveAllParksFromDto(parkPage);
-        return ResponseEntity.ok(parkPage);
-    }
-
-    @GetMapping("/api/natural-tourism")
-    public ResponseEntity<Page<ParkDto>> getPagedNaturalTourismInfo(
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
-
-        Page<ParkDto> naturalTourismPage = parkService.getAllNaturalTourismInfo(pageSize);
-        parkService.saveAllNaturalTourismFromDto(naturalTourismPage);
-        return ResponseEntity.ok(naturalTourismPage);
-    }
-
-    @GetMapping("/api/search")
+    @GetMapping("/search")
     public ResponseEntity<Page<ParkCardDtoV2>> searchParks(
             @RequestBody ParkSearchCondition condition,
             Pageable pageable) {
@@ -53,7 +36,7 @@ public class ParkApiController {
         return ResponseEntity.ok(parkCardDtoV2s);
     }
 
-    @GetMapping("/api/listpage/{parkId}")
+    @GetMapping("/listpage/{parkId}")
     public ResponseEntity<ParkReviewDetailDto> getParkDetail(
             @PathVariable("parkId") Long parkId) {
 
@@ -61,7 +44,7 @@ public class ParkApiController {
         return ResponseEntity.ok(reviewParkDetailDto);
     }
 
-    @GetMapping("api/listpage")
+    @GetMapping("/listpage")
     public ResponseEntity<Page<ParkCardDtoV2>> getParkListPage(
             Pageable pageable) {
         Page<ParkCardDtoV2> parkCard = parkService.getParkCard(pageable);

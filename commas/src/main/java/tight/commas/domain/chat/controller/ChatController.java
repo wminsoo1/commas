@@ -16,21 +16,22 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api/chat")
 public class ChatController {
 
     private final ChatService chatService;
 
-    @MessageMapping(value = "/chat/enter")
+    @MessageMapping(value = "/enter")
     public void enter(ChatDto message){
         chatService.enterChatRoom(message);
     }
 
-    @MessageMapping(value = "/chat/message")
+    @MessageMapping(value = "/message")
     public void message(ChatDto message){
         chatService.sendMessage(message);
     }
 
-    @PostMapping("/chat/room")
+    @PostMapping("/room")
     public ResponseEntity<List<Chat>> getRoom(@RequestBody RoomIdDto roomId) {
         List<Chat> chatList = chatService.getChatsByRoomId(roomId);
         return ResponseEntity.ok(chatList);

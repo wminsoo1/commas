@@ -164,7 +164,7 @@ public class ParkService {
                 .map(ParkReviewDescriptionDto::new)
                 .toList();
 
-        return new ParkReviewDetailDto(findPark, parkReviewDescriptionDtos);
+        return new ParkReviewDetailDto(findPark, fetchJoinAllByParkId.size());
     }
 
     //파크카드 조회

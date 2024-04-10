@@ -27,9 +27,11 @@ public class ParkReviewDetailDto {
 
     private Boolean likeStatus;
 
-    List<ParkReviewDescriptionDto> parkReviewDescriptionDtos;
+    private int reviewCount;
 
-    public ParkReviewDetailDto(Park park, List<ParkReviewDescriptionDto> parkReviewDescriptionDtos) {
+//    List<ParkReviewDescriptionDto> parkReviewDescriptionDtos;
+
+    public ParkReviewDetailDto(Park park, int reviewCount) {
         this.parkId = park.getId();
         this.parkName = park.getParkName();
         this.address = park.getAddress();
@@ -39,7 +41,7 @@ public class ParkReviewDetailDto {
         this.mainEquip = park.getMainEquip();
         this.outLine = park.getOutLine();
         this.likeStatus = park.getLikeStatus();
-        this.parkReviewDescriptionDtos = parkReviewDescriptionDtos;
+        this.reviewCount = reviewCount;
     }
 
 }
