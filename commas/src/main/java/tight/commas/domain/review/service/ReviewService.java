@@ -29,7 +29,7 @@ public class ReviewService {
     private final ParkRepository parkRepository;
     private final EntityManager em;
 
-    public List<ReviewDto> getReview(Long parkId) {
+    public List<ReviewDto> findByParkId(Long parkId) {
 
         List<Review> reviews = reviewRepository.findAllByParkId(parkId);
 
@@ -41,11 +41,12 @@ public class ReviewService {
                         .starScore(review.getStarScore())
                         .timestamp(review.getCreatedDate())
                         .parkId(review.getPark().getId())
+                        .reviewId(review.getId())
                         .build()
                 ).toList();
     }
 
-    public void postReview(Long parkId, User user, ReviewPostDto reviewDto) {
+    public void postReview(Long parkId, User user, ReviewPostDto reviewPostDto) {
 
         Park park = parkRepository.findById(parkId)
                 .orElseThrow(() -> new RuntimeException("해당 장소가 존재하지 않습니다."));
@@ -54,14 +55,14 @@ public class ReviewService {
         Review review = Review.builder()
                 .park(park)
                 .user(user)
-                .description(reviewDto.getDescription())
-                .starScore(reviewDto.getStarScore())
+                .description(reviewPostDto.getDescription())
+                .starScore(reviewPostDto.getStarScore())
                 .build();
 
-        List<ReviewTag> reviewTags = reviewDto.getReviewTags().stream()
-                .map(tag -> {
+        List<ReviewTag> reviewTags = reviewPostDto.getReviewTags().stream()
+                .map(description -> {
                     ReviewTag reviewTag = new ReviewTag();
-                    reviewTag.setTag(Tag.valueOf(tag));
+                    reviewTag.setTag(Tag.findByDescription(description));
 
                     reviewTag.addReview(review);
 
@@ -74,23 +75,79 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public void postReviewV2(Long parkId, User user, ReviewPostDto reviewDto) {
+    public void postReviewV2(Long parkId, User user, ReviewPostDto reviewPostDto) {
 
         Park park = parkRepository.findById(parkId)
                 .orElseThrow(() -> new RuntimeException("해당 장소가 존재하지 않습니다."));
-        Review review = new Review(user, park, reviewDto.getDescription(), reviewDto.getStarScore());
 
+        Review review = new Review(user, park, reviewPostDto.getDescription(), reviewPostDto.getStarScore());
         em.persist(review);
+
         List<ReviewTag> reviewTags = new ArrayList<>();
-        for (String tag : reviewDto.getReviewTags()) {
+
+        for (String description : reviewPostDto.getReviewTags()) {
             ReviewTag reviewTag = new ReviewTag();
             em.persist(reviewTag);
-            reviewTag.setTag(Tag.valueOf(tag));
+            reviewTag.setTag(Tag.findByDescription(description));
             reviewTag.addReview(review);
             reviewTags.add(reviewTag);
         }
-
     }
 
+    public void deleteReview(Long reviewId, User user) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("해당 리뷰가 존재하지 않습니다."));
+
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("리뷰를 삭제할 수 있는 권한이 없습니다.");
+        }
+
+        reviewRepository.delete(review);
+    }
+
+    public void modifyReview(Long reviewId, User user, ReviewPostDto updateForm) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("해당 리뷰가 존재하지 않습니다."));
+
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("리뷰를 수정할 수 있는 권한이 없습니다.");
+        }
+        reviewTagRepository.deleteAllByReview(review);
+
+        List<ReviewTag> reviewTags = new ArrayList<>();
+
+        for (String description : updateForm.getReviewTags()) {
+            ReviewTag reviewTag = new ReviewTag();
+            reviewTag.setReview(review);
+            reviewTag.setTag(Tag.findByDescription(description));
+            reviewTags.add(reviewTag);
+        }
+
+        review.setReviewTags(reviewTags);
+        review.setDescription(updateForm.getDescription());
+        review.setStarScore(updateForm.getStarScore());
+
+        reviewTagRepository.saveAll(reviewTags);
+        reviewRepository.save(review);
+    }
+
+    public List<ReviewDto> findAllByUserId(Long userId) {
+
+        List<Review> reviews = reviewRepository.findAllByUserId(userId);
+
+        return reviews.stream().map(
+                review -> ReviewDto.builder()
+                        .user(UserDto.Response.fromUser(review.getUser()))
+                        .description(review.getDescription())
+                        .reviewTags(review.getReviewTags().stream().map(reviewTag -> reviewTag.getTag().getDescription()).toList())
+                        .starScore(review.getStarScore())
+                        .timestamp(review.getCreatedDate())
+                        .parkId(review.getPark().getId())
+                        .reviewId(review.getId())
+                        .build()
+        ).toList();
+    }
 }
 
