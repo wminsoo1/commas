@@ -15,9 +15,9 @@ public class AuthenticationDto {
     }
 
     @Builder
+    @Getter
     public static class Response {
 
-        @JsonProperty("user")
         private UserDto.Response user;
 
         @JsonProperty("access_token")
