@@ -8,6 +8,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tight.commas.domain.chat.dto.ChatRoomDto;
+import tight.commas.domain.chat.entity.ChatRoom;
+import tight.commas.domain.chat.repository.ChatRoomRepository;
 import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.api.ParkApi;
 import tight.commas.domain.park.dto.ParkCardDtoV2;
@@ -21,6 +24,7 @@ import tight.commas.domain.review.repository.ReviewRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,15 +36,18 @@ public class ParkService {
     private final ParkRepository parkRepository;
     private final EntityManager em;
     private final ReviewRepository reviewRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     public Page<ParkDto> getAllParks(int pageSize) {
         List<ParkDto> allParkDtoList = new ArrayList<>();
+        List<ChatRoom> chatRoomsToSave = new ArrayList<>();
         int currentPageNum = 1;
         int totalPages = 0;
 
         while (true) {
             Page<ParkDto> parkPage = parkApi.getPagedParkInfo(currentPageNum, pageSize);
             List<ParkDto> parkDtoList = parkPage.getContent();
+
             allParkDtoList.addAll(parkDtoList);
             totalPages = parkPage.getTotalPages();
             if (parkPage.isLast()) {
@@ -98,6 +105,7 @@ public class ParkService {
         for (ParkDto parkDto : parkDtoList) {
             // 이름으로 Park 엔티티 찾기
             Park existingPark = parkRepository.findByParkName(parkDto.getName());
+            ChatRoom chatRoom;
             if (existingPark != null) {
                 // 해당 이름을 가진 Park이 이미 존재하는 경우, 변경 감지를 통해 업데이트
                 existingPark.saveParkInfo(
@@ -121,6 +129,8 @@ public class ParkService {
                         parkDto.getImageUrl()
                 );
                 parkRepository.save(park); // 새로운 Park 엔티티 저장
+                chatRoom = ChatRoom.createChatRoom(park);
+                chatRoomRepository.save(chatRoom);
             }
         }
     }

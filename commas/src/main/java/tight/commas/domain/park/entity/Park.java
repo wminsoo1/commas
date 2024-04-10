@@ -22,10 +22,6 @@ public class Park extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatroom_id")
-    private ChatRoom chatRoom;
-
     private String parkName;
 
     @Embedded
