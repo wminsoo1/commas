@@ -24,7 +24,7 @@ import java.util.List;
 public class OpenApiController {
 
     private final ParkService parkService;
-    private WeatherApi weatherApi;
+    private final WeatherApi weatherApi;
     private final DrinkApi drinkApi;
     private final ToiletApi toiletApi;
 
