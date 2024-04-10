@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import tight.commas.domain.user.dto.UserDto;
 import tight.commas.domain.user.entity.User;
 import tight.commas.domain.user.repository.UserRepository;
 import tight.commas.global.auth.dto.AuthenticationDto;
@@ -47,6 +48,7 @@ public class AuthenticationService {
         saveUserToken(user, refreshToken, TokenType.REFRESH_TOKEN);
 
         return AuthenticationDto.Response.builder()
+                .user(UserDto.Response.fromUser(user))
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -73,6 +75,7 @@ public class AuthenticationService {
         saveUserToken(user, refreshToken, TokenType.REFRESH_TOKEN);
 
         return AuthenticationDto.Response.builder()
+                .user(UserDto.Response.fromUser(user))
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
