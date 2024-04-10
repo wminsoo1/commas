@@ -9,7 +9,6 @@ public class RegisterDto {
     @Getter
     public static class Request {
         private String email;
-        private String username;
         private String nickname;
         private String password;
     }

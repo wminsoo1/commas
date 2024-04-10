@@ -1,12 +1,7 @@
 package tight.commas.domain.review.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
+import lombok.*;
 import tight.commas.domain.BaseTimeEntity;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.review.Tag;
@@ -35,23 +30,22 @@ public class Review extends BaseTimeEntity {
     @JoinColumn(name = "park_id")
     private Park park;
 
+    @Setter
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<ReviewTag> reviewTags = new ArrayList<>();
 
+    @Setter
     private String description;
 
     private String imageUrl;
 
+    @Setter
     private int starScore;
 
     public List<Tag> getTags() {
         return reviewTags.stream()
                 .map(ReviewTag::getTag)
                 .collect(Collectors.toList());
-    }
-
-    public void setReviewTags(List<ReviewTag> reviewTags) {
-        this.reviewTags = reviewTags;
     }
 
     public Review(User user, Park park, String description, int starScore) {

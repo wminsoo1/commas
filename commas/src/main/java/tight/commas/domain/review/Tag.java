@@ -15,4 +15,13 @@ public enum Tag {
     Tag(String description) {
         this.description = description;
     }
+
+    public static Tag findByDescription(String description) {
+        for (Tag tag : Tag.values()) {
+            if (tag.getDescription().equals(description)) {
+                return tag;
+            }
+        }
+        throw new IllegalArgumentException("유효하지 않은 리뷰 태그입니다.");
+    }
 }
