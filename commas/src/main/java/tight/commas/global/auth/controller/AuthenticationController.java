@@ -11,7 +11,7 @@ import tight.commas.global.auth.dto.RegisterDto;
 import tight.commas.global.auth.service.AuthenticationService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
