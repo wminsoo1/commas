@@ -1,6 +1,7 @@
 package tight.commas.domain.weather.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,7 @@ public class WeatherApiController {
     @Autowired
     private WeatherApi weatherApi;
 
-    @PostMapping("/api/weather")
+    @GetMapping("/api/weather")
     public WeatherResponseDto getWeather(@RequestBody WeatherRequestDto weatherRequestDto) throws UnsupportedEncodingException {
         return weatherApi.fetchWeatherData(weatherRequestDto);
     }

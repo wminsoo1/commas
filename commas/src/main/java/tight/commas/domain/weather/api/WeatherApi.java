@@ -44,7 +44,7 @@ public class WeatherApi {
         String encodedSidoName = URLEncoder.encode(sidoName, "UTF-8");
         String pmUrl = String.format("%s?sidoName=%s&pageNo=%s&numOfRows=%s&returnType=%s&serviceKey=%s&ver=%s",pmBaseUrl, encodedSidoName, pageNo, numOfRows, returnType, serviceKey, version);
 
-        Mono<Map> weatherResponseMono = webClientUtils.post(weatherUrl, weatherRequestDto, Map.class);
+        Mono<Map> weatherResponseMono = webClientUtils.get(weatherUrl, Map.class);
         Map<String, Object> weatherResponse = weatherResponseMono.block();
         Mono<Map> pmResponseMono = webClientUtils.get(pmUrl, Map.class);
         Map<String, Object> pmResponse = pmResponseMono.block();
