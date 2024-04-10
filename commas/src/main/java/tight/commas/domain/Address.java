@@ -14,6 +14,10 @@ public class Address {
     protected Address() {
     }
 
+    public Address(String address) {
+        this.address = address;
+    }
+
     public Address(String address, double latitude, double longitude) {
         this.address = address;
         this.latitude = latitude;

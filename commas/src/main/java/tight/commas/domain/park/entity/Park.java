@@ -5,7 +5,10 @@ import lombok.Getter;
 import tight.commas.domain.Address;
 import tight.commas.domain.BaseTimeEntity;
 import tight.commas.domain.Chat;
-import tight.commas.domain.User;
+import tight.commas.domain.user.entity.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,6 +26,8 @@ public class Park extends BaseTimeEntity {
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
+    private String parkName;
+
     @Embedded
     private Address address;
 
@@ -30,11 +35,28 @@ public class Park extends BaseTimeEntity {
 
     private int phoneNumber;
 
+    @Column(length = 1000)
     private String plant; //주요 식물
 
+    @Column(length = 1000)
+    private String mainEquip; //주요 시설
+
+    @Column(length = 1000)
     private String outLine; //개요
 
-    private String tag;
-
     private Boolean likeStatus;
+
+    public void saveParkInfo(String name, String content, Address address, String mainEquip, String mainPlant, String imageUrl) {
+        this.parkName = name;
+        this.outLine = content;
+        this.address = address;
+        this.mainEquip = mainEquip;
+        this.plant = mainPlant;
+        this.imageUrl = imageUrl;
+    }
+
+    public void saveNaturalTourismInfo(String name, Address address) {
+        this.parkName = name;
+        this.address = address;
+    }
 }
