@@ -28,9 +28,13 @@ public class ReviewController {
     public ResponseEntity<Void> postReview(
             @PathVariable(value = "parkId") Long parkId,
             @AuthenticationPrincipal User user,
-            @RequestBody ReviewPostDto reviewPostDto
+            @ModelAttribute ReviewPostDto reviewPostDto
         ) {
 
+        System.out.println("reviewPostDto = " + reviewPostDto.getReviewTags());
+        System.out.println("reviewPostDto = " + reviewPostDto.getStarScore());
+        System.out.println("reviewPostDto = " + reviewPostDto.getDescription());
+        System.out.println("reviewPostDto = " + reviewPostDto.getFiles());
         reviewService.postReviewV2(parkId, user, reviewPostDto);
 
         return ResponseEntity.ok(null);
@@ -50,7 +54,7 @@ public class ReviewController {
     public ResponseEntity<Void> modifyReview(
             @PathVariable(value = "reviewId") Long reviewId,
             @AuthenticationPrincipal User user,
-            @RequestBody ReviewPostDto reviewModified
+            @ModelAttribute ReviewPostDto reviewModified
     ) {
         reviewService.modifyReview(reviewId, user, reviewModified);
 
