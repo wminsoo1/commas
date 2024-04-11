@@ -15,7 +15,7 @@ public class ReviewDto {
     private UserDto.Response user;
     private Long parkId;
     private Long reviewId;
-    private String imageUrl;
+    private List<String> imageUrl;
     private String description;
     private int starScore;
     private LocalDateTime timestamp;

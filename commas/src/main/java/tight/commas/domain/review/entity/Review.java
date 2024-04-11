@@ -37,7 +37,9 @@ public class Review extends BaseTimeEntity {
     @Setter
     private String description;
 
-    private String imageUrl;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Setter
+    private List<String> imageUrls = new ArrayList<>();
 
     @Setter
     private int starScore;
@@ -48,10 +50,12 @@ public class Review extends BaseTimeEntity {
                 .collect(Collectors.toList());
     }
 
-    public Review(User user, Park park, String description, int starScore) {
+    public void postReview(User user, Park park, String description, List<String> imageUrls, int starScore) {
         this.user = user;
         this.park = park;
         this.description = description;
+        this.imageUrls = imageUrls;
         this.starScore = starScore;
     }
+
 }

@@ -15,6 +15,7 @@ import tight.commas.domain.review.repository.ReviewRepository;
 import tight.commas.domain.review.repository.ReviewTagRepository;
 import tight.commas.domain.user.dto.UserDto;
 import tight.commas.domain.user.entity.User;
+import tight.commas.global.s3.AwsS3Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class ReviewService {
     private final ReviewTagRepository reviewTagRepository;
     private final ParkRepository parkRepository;
     private final EntityManager em;
+    private final AwsS3Service awsS3Service;
 
     public List<ReviewDto> findByParkId(Long parkId) {
 
@@ -39,6 +41,7 @@ public class ReviewService {
                         .description(review.getDescription())
                         .reviewTags(review.getReviewTags().stream().map(reviewTag -> reviewTag.getTag().getDescription()).toList())
                         .starScore(review.getStarScore())
+                        .imageUrl(review.getImageUrls())
                         .timestamp(review.getCreatedDate())
                         .parkId(review.getPark().getId())
                         .reviewId(review.getId())
@@ -80,8 +83,14 @@ public class ReviewService {
         Park park = parkRepository.findById(parkId)
                 .orElseThrow(() -> new RuntimeException("해당 장소가 존재하지 않습니다."));
 
-        Review review = new Review(user, park, reviewPostDto.getDescription(), reviewPostDto.getStarScore());
+        List<String> imageUrls = awsS3Service.uploadFile(reviewPostDto.getFiles());
+        Review review = new Review();
         em.persist(review);
+//        for (String imageUrl : imageUrls) {
+//            review.getImageUrls().add(imageUrl);
+//        }
+        review.postReview(user, park, reviewPostDto.getDescription(),imageUrls, reviewPostDto.getStarScore());
+        System.out.println("review = " + review.getImageUrls());
 
         List<ReviewTag> reviewTags = new ArrayList<>();
 
@@ -128,6 +137,8 @@ public class ReviewService {
         review.setReviewTags(reviewTags);
         review.setDescription(updateForm.getDescription());
         review.setStarScore(updateForm.getStarScore());
+        List<String> imageUrls = awsS3Service.uploadFile(updateForm.getFiles());
+        review.setImageUrls(imageUrls);
 
         reviewTagRepository.saveAll(reviewTags);
         reviewRepository.save(review);
@@ -143,6 +154,7 @@ public class ReviewService {
                         .description(review.getDescription())
                         .reviewTags(review.getReviewTags().stream().map(reviewTag -> reviewTag.getTag().getDescription()).toList())
                         .starScore(review.getStarScore())
+                        .imageUrl(review.getImageUrls())
                         .timestamp(review.getCreatedDate())
                         .parkId(review.getPark().getId())
                         .reviewId(review.getId())
