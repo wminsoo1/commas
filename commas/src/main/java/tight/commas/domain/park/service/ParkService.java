@@ -22,9 +22,7 @@ import tight.commas.domain.park.repository.ParkRepository;
 import tight.commas.domain.review.entity.Review;
 import tight.commas.domain.review.repository.ReviewRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,28 +37,16 @@ public class ParkService {
     private final ChatRoomRepository chatRoomRepository;
 
     public Page<ParkDto> getAllParks(int pageSize) {
-        List<ParkDto> allParkDtoList = new ArrayList<>();
-        List<ChatRoom> chatRoomsToSave = new ArrayList<>();
         int currentPageNum = 1;
         int totalPages = 0;
 
-        while (true) {
-            Page<ParkDto> parkPage = parkApi.getPagedParkInfo(currentPageNum, pageSize);
-            List<ParkDto> parkDtoList = parkPage.getContent();
+        Page<ParkDto> parkPage = parkApi.getPagedParkInfo(currentPageNum, pageSize);
+        List<ParkDto> parkDtoList = parkPage.getContent();
+        totalPages = parkPage.getTotalPages();
 
-            allParkDtoList.addAll(parkDtoList);
-            totalPages = parkPage.getTotalPages();
-            if (parkPage.isLast()) {
-                int remainingItems = parkApi.getTotalCount("SearchParkInfoService") % pageSize;
-                List<ParkDto> remainingData = parkApi.getParkRemainingData(currentPageNum * pageSize, currentPageNum * pageSize + remainingItems);
-                allParkDtoList.addAll(remainingData);
-                break; // 반복문 종료
-            }
-            currentPageNum++;
-        }
 
         // 모든 데이터를 합쳐서 새로운 Page 객체 생성하여 반환
-        return new PageImpl<>(allParkDtoList, PageRequest.of(0, allParkDtoList.size()), totalPages);
+        return new PageImpl<>(parkDtoList, PageRequest.of(0, parkDtoList.size()), totalPages);
     }
 
     public Page<ParkDto> getAllNaturalTourismInfo(int pageSize) {
@@ -170,5 +156,19 @@ public class ParkService {
     //파크카드 조회
     public Page<ParkCardDtoV2> getParkCard(Pageable pageable) {
         return parkRepository.getParkCardDtoV2(pageable);
+    }
+
+    public List<ParkReviewDetailDto> getReviewParkDetailDtos() {
+
+        List<Review> allReviewsWithParksJoinFetch = reviewRepository.findAllReviewsWithParksJoinFetch();
+
+        Map<Park, List<Review>> reviewsByPark  = allReviewsWithParksJoinFetch.stream()
+                .collect(Collectors.groupingBy(Review::getPark));
+
+        return reviewsByPark.entrySet().stream()
+                .sorted((entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size()))
+                .limit(20)
+                .map(entry -> new ParkReviewDetailDto(entry.getKey(), entry.getValue().size()))
+                .toList();
     }
 }

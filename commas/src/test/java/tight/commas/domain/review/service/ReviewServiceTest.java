@@ -86,13 +86,4 @@ class ReviewServiceTest {
 //        // 모든 사용자 데이터 삭제
 //        userRepository.deleteAll();
 //    }
-
-    @Test
-    void getReviewParkDetailDto() {
-        System.out.println("=================================");
-        ParkReviewDetailDto parkReviewDetailDto = parkService.getReviewParkDetailDto(1L);
-        System.out.println("=================================");
-        System.out.println("reviewParkDetailDto = " + parkReviewDetailDto.toString());
-    }
-
 }
