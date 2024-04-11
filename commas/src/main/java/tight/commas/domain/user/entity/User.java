@@ -2,10 +2,7 @@ package tight.commas.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,10 +24,16 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "user_id")
     private Long id;
 
+    @Setter
     private String nickname;
+
     private String password;
     private String email;
 
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 
     //==================== UserDetail Method ====================//
     @Override
