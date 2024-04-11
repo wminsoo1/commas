@@ -16,6 +16,8 @@ import tight.commas.global.auth.TokenType;
 import tight.commas.global.auth.repository.TokenRepository;
 import tight.commas.global.security.jwt.JwtTokenProvider;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -41,8 +43,8 @@ public class AuthenticationService {
 
         userRepository.save(user);
 
-        var accessToken = jwtTokenProvider.createAccessToken(user);
-        var refreshToken = jwtTokenProvider.createRefreshToken(user);
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
         saveUserToken(user, accessToken, TokenType.ACCESS_TOKEN);
         saveUserToken(user, refreshToken, TokenType.REFRESH_TOKEN);
@@ -63,11 +65,11 @@ public class AuthenticationService {
                 )
         );
 
-        var user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
 
-        var accessToken = jwtTokenProvider.createAccessToken(user);
-        var refreshToken = jwtTokenProvider.createRefreshToken(user);
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
         revokeAllUserTokens(user);
 
@@ -83,7 +85,7 @@ public class AuthenticationService {
 
     private void saveUserToken(User user, String jwtToken, TokenType tokenType) {
 
-        var token = Token.builder()
+        Token token = Token.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(tokenType)
@@ -93,12 +95,12 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    private void revokeAllUserTokens(User user) {
+    public void revokeAllUserTokens(User user) {
 
-        var validTokens = tokenRepository.findAllValidTokenByUser(user);
+        List<Token> validTokens = tokenRepository.findAllValidTokenByUser(user);
 
-        if (!tokenRepository.findAllValidTokenByUser(user).isEmpty()) {
-            tokenRepository.findAllValidTokenByUser(user).forEach(token -> {
+        if (!validTokens.isEmpty()) {
+            validTokens.forEach(token -> {
                 token.setExpired(true);
             });
             tokenRepository.saveAll(validTokens);
