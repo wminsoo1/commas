@@ -20,27 +20,31 @@ public class ParkController {
 
     private final ParkService parkService;
 
-    @PostMapping("/search")
+
+    @PostMapping("/search/{userId}")
     public ResponseEntity<Page<ParkCardDtoV2>> searchParks(
             @RequestBody ParkSearchCondition condition,
+            @PathVariable("userId") Long userId,
             Pageable pageable) {
 
-        Page<ParkCardDtoV2> parkCardDtoV2s = parkService.parkCardDtoV2Page(condition, pageable);
+        Page<ParkCardDtoV2> parkCardDtoV2s = parkService.parkCardDtoV2Page(condition, pageable, userId);
         return ResponseEntity.ok(parkCardDtoV2s);
     }
 
-    @GetMapping("/listpage/{parkId}")
+    @GetMapping("/listpage/park/{parkId}")
     public ResponseEntity<ParkReviewDetailDto> getParkDetail(
-            @PathVariable("parkId") Long parkId) {
+            @PathVariable("parkId") Long parkId,
+            @RequestParam("userId") Long userId) {
 
-        ParkReviewDetailDto reviewParkDetailDto = parkService.getReviewParkDetailDto(parkId);
+        ParkReviewDetailDto reviewParkDetailDto = parkService.getReviewParkDetailDto(parkId, userId);
         return ResponseEntity.ok(reviewParkDetailDto);
     }
 
-    @GetMapping("/listpage")
+    @GetMapping("/listpage/{userId}")
     public ResponseEntity<Page<ParkCardDtoV2>> getParkListPage(
-            Pageable pageable) {
-        Page<ParkCardDtoV2> parkCard = parkService.getParkCard(pageable);
+            Pageable pageable,
+            @PathVariable("userId") Long userId) {
+        Page<ParkCardDtoV2> parkCard = parkService.getParkCard(pageable, userId);
         return ResponseEntity.ok(parkCard);
     }
 

@@ -23,13 +23,14 @@ public class ParkCardDtoV2 {
     private String parkName;
     private Address address;
     private String imageUrl;
-    private List<Tag> reviewTags;
+    private Boolean likeStatus;
+    private List<String> reviewTags;
 
     public ParkCardDtoV2(Review review) {
         this.parkName = review.getPark().getParkName();
         this.address = review.getPark().getAddress();
         this.imageUrl = review.getPark().getImageUrl();
-        this.reviewTags = review.getReviewTags().stream().map(ReviewTag::getTag).toList();
+        this.reviewTags = review.getReviewTags().stream().map(rt -> rt.getTag().getDescription()).toList();
     }
 
     public ParkCardDtoV2(Park park, List<Tag> tags) {
@@ -37,7 +38,7 @@ public class ParkCardDtoV2 {
         this.parkName = park.getParkName();
         this.address = park.getAddress();
         this.imageUrl = park.getImageUrl();
-        this.reviewTags = tags;
+        this.reviewTags = tags.stream().map(t -> t.getDescription()).toList();
     }
 
     @QueryProjection

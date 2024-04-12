@@ -132,25 +132,29 @@ public class ParkService {
         parkRepository.saveAll(parksToSave);
     }
 
-    public Page<ParkCardDtoV2> parkCardDtoV2Page(ParkSearchCondition condition, Pageable pageable) {
-        return parkRepository.parkCardSearchV4(condition, pageable);
+    public Page<ParkCardDtoV2> parkCardDtoV2Page(ParkSearchCondition condition, Pageable pageable, Long userId) {
+        return parkRepository.parkCardSearchV4(condition, pageable, userId);
     }
 
     //파크 상세 조회
-    public ParkReviewDetailDto getReviewParkDetailDto(Long parkId) {
+    public ParkReviewDetailDto getReviewParkDetailDto(Long parkId, Long userId) {
         Park findPark = parkRepository.findById(parkId).orElse(null);
         List<Review> fetchJoinAllByParkId = reviewRepository.findFetchJoinAllByParkId(parkId);
+        ParkReviewDetailDto parkReviewDetailDto = new ParkReviewDetailDto(findPark, fetchJoinAllByParkId.size());
 
-        List<ParkReviewDescriptionDto> parkReviewDescriptionDtos = fetchJoinAllByParkId.stream()
-                .map(ParkReviewDescriptionDto::new)
-                .toList();
+        List<UserParkLike> userParkLikes = userParkLikeRepository.findByUserId(userId);
+        for (UserParkLike userParkLike : userParkLikes) {
+            if (userParkLike.getPark().getId().equals(findPark.getId())) {
+                parkReviewDetailDto.setLikeStatus(true);
+            }
+        }
 
-        return new ParkReviewDetailDto(findPark, fetchJoinAllByParkId.size());
+        return parkReviewDetailDto;
     }
 
     //파크카드 조회
-    public Page<ParkCardDtoV2> getParkCard(Pageable pageable) {
-        return parkRepository.getParkCardDtoV2(pageable);
+    public Page<ParkCardDtoV2> getParkCard(Pageable pageable, Long userId) {
+        return parkRepository.getParkCardDtoV2(pageable, userId);
     }
 
     public List<ParkReviewDetailDto> getReviewParkDetailDtos() {
@@ -222,7 +226,8 @@ public class ParkService {
                         .parkName(userParkLike.getPark().getParkName())
                         .imageUrl(userParkLike.getPark().getImageUrl())
                         .address(userParkLike.getPark().getAddress())
-                        .reviewTags(findTop3ByReview(userParkLike.getPark()))
+                        .reviewTags(findTop3ByReview(userParkLike.getPark()).stream().map(Tag::getDescription).toList())
+                        .likeStatus(true)
                         .build()
         ).toList();
     }

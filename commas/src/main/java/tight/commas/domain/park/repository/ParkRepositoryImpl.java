@@ -7,6 +7,8 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,11 +20,13 @@ import tight.commas.domain.park.dto.QParkCardDto;
 import tight.commas.domain.park.dto.QParkCardDtoV2;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.park.entity.QPark;
+import tight.commas.domain.park.entity.UserParkLike;
 import tight.commas.domain.review.Tag;
 import tight.commas.domain.review.entity.QReview;
 import tight.commas.domain.review.entity.QReviewTag;
 import tight.commas.domain.review.entity.Review;
 import tight.commas.domain.review.entity.ReviewTag;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -36,10 +40,13 @@ import static tight.commas.domain.review.entity.QReviewTag.*;
 
 public class ParkRepositoryImpl implements ParkRepositoryCustom{
 
-    private final JPAQueryFactory queryFactory;
+    private JPAQueryFactory queryFactory;
+    private UserParkLikeRepository userParkLikeRepository;
 
-    public ParkRepositoryImpl(EntityManager em) {
+    @Autowired
+    public ParkRepositoryImpl(EntityManager em, UserParkLikeRepository userParkLikeRepository) {
         this.queryFactory = new JPAQueryFactory(em);
+        this.userParkLikeRepository = userParkLikeRepository;
     }
 
 
@@ -61,7 +68,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                 .select(reviewTag)
                 .from(reviewTag)
                 .leftJoin(reviewTag.review, review)
-                .where(review.in(fetch), tagEq(condition.getTags()))
+                .where(review.in(fetch), tagEq(condition.getTags().stream().map(Tag::findByDescription).collect(Collectors.toList())))
                 .fetchJoin()
                 .fetch();
 
@@ -108,7 +115,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
     public Page<ParkCardDtoV2> parkCardSearchV2(ParkSearchCondition condition, Pageable pageable) {
         List<Review> reviews = findByParkNameContaining(condition, pageable);
 
-        List<Tag> tags = condition.getTags() != null ? condition.getTags() : Collections.emptyList();
+        List<Tag> tags = condition.getTags() != null ?condition.getTags().stream().map(Tag::findByDescription).toList() : Collections.emptyList();
 
         if (!tags.isEmpty()) {
             reviews = reviews.stream()
@@ -160,7 +167,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
         List<Long> reviewIds = queryFactory
                 .select(reviewTag.review.id)
                 .from(reviewTag)
-                .where(reviewTag.tag.in(condition.getTags()))
+                .where(reviewTag.tag.in(condition.getTags().stream().map(Tag::findByDescription).collect(Collectors.toList())))
                 .groupBy(reviewTag.review.id)
                 .having(reviewTag.tag.count().eq((long) condition.getTags().size()))
                 .fetch();
@@ -170,7 +177,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
 
 
     @Override //파크 리스트 조회
-    public Page<ParkCardDtoV2> getParkCardDtoV2(Pageable pageable) {
+    public Page<ParkCardDtoV2> getParkCardDtoV2(Pageable pageable, Long userId) {
 
         List<Review> reviewList = queryFactory
                 .selectFrom(review)
@@ -179,6 +186,8 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+
 
         Map<Park, List<Review>> parkReviewMap  = reviewList.stream()
                 .collect(Collectors.groupingBy(Review::getPark));
@@ -210,6 +219,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                 .from(park)
                 .fetch();
 
+
         for (ParkCardDtoV2 parkCardDtoV2 : parkCardDtoV2List) {
             for (ParkCardDtoV2 parkCardDto : parkCardDtoList) {
                 if (parkCardDtoV2.getParkId().equals(parkCardDto.getParkId())) {
@@ -222,16 +232,31 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
             }
         }
 
+        List<UserParkLike> userParkLikes = userParkLikeRepository.findByUserId(userId);
+
+        List<Park> parks = userParkLikes.stream()
+                .map(UserParkLike::getPark)
+                .toList();
+
+        for (ParkCardDtoV2 parkCardDtoV2 : parkCardDtoV2List) {
+            for (Park park : parks) {
+                if (parkCardDtoV2.getParkId().equals(park.getId())) {
+                    parkCardDtoV2.setLikeStatus(true);
+                }
+            }
+        }
+
 
         return new PageImpl<>(parkCardDtoV2List, pageable, parkCardDtoList.size());
     }
 
     @Override //파크 검색 및 태그 필터
-    public Page<ParkCardDtoV2> parkCardSearchV4(ParkSearchCondition condition, Pageable pageable) {
+    public Page<ParkCardDtoV2> parkCardSearchV4(ParkSearchCondition condition, Pageable pageable, Long userId) {
         List<Review> reviewList = findByParkNameContaining(condition, pageable);
 
         Map<Park, List<Review>> parkReviewMap  = reviewList.stream()
                 .collect(Collectors.groupingBy(Review::getPark));
+
 
         List<ParkCardDtoV2> parkCardDtoList  = parkReviewMap.entrySet().stream()
                 .map(entry -> {
@@ -248,15 +273,31 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                             .map(Map.Entry::getKey)
                             .toList();
 
+
                     return new ParkCardDtoV2(keyPark, topTags);
                 }).toList();
-
-        List<Tag> tags = condition.getTags() != null ? condition.getTags() : Collections.emptyList();
-
+        List<Tag> tags = condition.getTags() != null ? condition.getTags().stream().map(Tag::findByDescription).toList() : Collections.emptyList();
+        for (Tag tag : tags) {
+            System.out.println("tag = " + tag);
+        }
         if (!tags.isEmpty()) {
             parkCardDtoList = parkCardDtoList.stream()
-                    .filter(parkCardDtoV2 -> parkCardDtoV2.getReviewTags().containsAll(tags))
+                    .filter(parkCardDtoV2 -> parkCardDtoV2.getReviewTags().stream().map(Tag::findByDescription).toList().containsAll(tags))
                     .toList();
+        }
+
+        List<UserParkLike> userParkLikes = userParkLikeRepository.findByUserId(userId);
+
+        List<Park> parks = userParkLikes.stream()
+                .map(UserParkLike::getPark)
+                .toList();
+
+        for (ParkCardDtoV2 parkCardDtoV2 : parkCardDtoList) {
+            for (Park park : parks) {
+                if (parkCardDtoV2.getParkId().equals(park.getId())) {
+                    parkCardDtoV2.setLikeStatus(true);
+                }
+            }
         }
 
         return new PageImpl<>(parkCardDtoList, pageable, parkCardDtoList.size());
