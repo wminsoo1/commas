@@ -50,12 +50,18 @@ public class Review extends BaseTimeEntity {
                 .collect(Collectors.toList());
     }
 
-    public void postReview(User user, Park park, String description, List<String> imageUrls, int starScore) {
+    public void postReview(Park park, User user, String description, int starScore) {
+        this.park = park;
+        this.user = user;
+        this.description = description;
+        this.starScore = starScore;
+    }
+
+    public void postReviewWithImage(User user, Park park, String description, List<String> imageUrls, int starScore) {
         this.user = user;
         this.park = park;
         this.description = description;
         this.imageUrls = imageUrls;
         this.starScore = starScore;
     }
-
 }

@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import tight.commas.domain.review.dto.ReviewDto;
 import tight.commas.domain.review.dto.ReviewPostDto;
+import tight.commas.domain.review.dto.ReviewPostWithImageDto;
 import tight.commas.domain.review.service.ReviewService;
 import tight.commas.domain.user.entity.User;
 
@@ -19,7 +20,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/park/{parkId}")
-    public ResponseEntity<List<ReviewDto>> getReview(@PathVariable(value = "parkId") Long parkId) {
+    public ResponseEntity<List<ReviewDto>> findAllByParkId(@PathVariable(value = "parkId") Long parkId) {
 
         return ResponseEntity.ok(reviewService.findByParkId(parkId));
     }
@@ -28,14 +29,21 @@ public class ReviewController {
     public ResponseEntity<Void> postReview(
             @PathVariable(value = "parkId") Long parkId,
             @AuthenticationPrincipal User user,
-            @ModelAttribute ReviewPostDto reviewPostDto
-        ) {
+            @RequestBody ReviewPostDto review
+    ) {
 
-        System.out.println("reviewPostDto = " + reviewPostDto.getReviewTags());
-        System.out.println("reviewPostDto = " + reviewPostDto.getStarScore());
-        System.out.println("reviewPostDto = " + reviewPostDto.getDescription());
-        System.out.println("reviewPostDto = " + reviewPostDto.getFiles());
-        reviewService.postReviewV2(parkId, user, reviewPostDto);
+        reviewService.postReview(parkId, user, review);
+
+        return ResponseEntity.ok(null);
+    }
+
+    @PostMapping("/park/{parkId}/v2")
+    public ResponseEntity<Void> postReviewWithImage(
+            @PathVariable(value = "parkId") Long parkId,
+            @AuthenticationPrincipal User user,
+            @ModelAttribute ReviewPostWithImageDto reviewPostWithImageDto
+    ) {
+        reviewService.postReviewWithImage(parkId, user, reviewPostWithImageDto);
 
         return ResponseEntity.ok(null);
     }
@@ -50,13 +58,25 @@ public class ReviewController {
         return ResponseEntity.ok(null);
     }
 
+
     @PutMapping("/{reviewId}")
     public ResponseEntity<Void> modifyReview(
             @PathVariable(value = "reviewId") Long reviewId,
             @AuthenticationPrincipal User user,
-            @ModelAttribute ReviewPostDto reviewModified
+            @RequestBody ReviewPostDto reviewModified
     ) {
         reviewService.modifyReview(reviewId, user, reviewModified);
+
+        return ResponseEntity.ok(null);
+    }
+
+    @PutMapping("/{reviewId}/v2")
+    public ResponseEntity<Void> modifyReviewV2(
+            @PathVariable(value = "reviewId") Long reviewId,
+            @AuthenticationPrincipal User user,
+            @ModelAttribute ReviewPostWithImageDto reviewModified
+    ) {
+        reviewService.modifyReviewWithImage(reviewId, user, reviewModified);
 
         return ResponseEntity.ok(null);
     }
@@ -70,10 +90,18 @@ public class ReviewController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<ReviewDto>> findMyReview(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<ReviewDto>> findMyAllReview(@AuthenticationPrincipal User user) {
 
         List<ReviewDto> reviews = reviewService.findAllByUserId(user.getId());
 
         return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/tagType")
+    public ResponseEntity<List<String>> getAllTagType() {
+
+        List<String> tagTypes = reviewService.getAllTagType();
+
+        return ResponseEntity.ok(tagTypes);
     }
 }
