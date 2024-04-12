@@ -83,7 +83,12 @@ public class ReviewService {
         Park park = parkRepository.findById(parkId)
                 .orElseThrow(() -> new RuntimeException("해당 장소가 존재하지 않습니다."));
 
-        List<String> imageUrls = awsS3Service.uploadFile(reviewPostDto.getFiles());
+        List<String> imageUrls;
+        if (reviewPostDto.getFiles() == null) {
+            imageUrls = null;
+        }else {
+            imageUrls = awsS3Service.uploadFile(reviewPostDto.getFiles());
+        }
         Review review = new Review();
         em.persist(review);
 //        for (String imageUrl : imageUrls) {
