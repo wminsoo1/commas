@@ -46,7 +46,7 @@ public class OpenApiController {
         return ResponseEntity.ok(naturalTourismPage);
     }
 
-    @GetMapping("/weather")
+    @PostMapping("/weather")
     public WeatherResponseDto getWeather(@RequestBody LocationRequestDto locationRequestDto) throws UnsupportedEncodingException {
         return weatherApi.fetchWeatherData(locationRequestDto);
     }

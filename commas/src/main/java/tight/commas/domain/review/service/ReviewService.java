@@ -9,6 +9,7 @@ import tight.commas.domain.park.repository.ParkRepository;
 import tight.commas.domain.review.Tag;
 import tight.commas.domain.review.dto.ReviewDto;
 import tight.commas.domain.review.dto.ReviewPostDto;
+import tight.commas.domain.review.dto.ReviewPostWithImageDto;
 import tight.commas.domain.review.entity.Review;
 import tight.commas.domain.review.entity.ReviewTag;
 import tight.commas.domain.review.repository.ReviewRepository;
@@ -18,7 +19,9 @@ import tight.commas.domain.user.entity.User;
 import tight.commas.global.s3.AwsS3Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -49,20 +52,15 @@ public class ReviewService {
                 ).toList();
     }
 
-    public void postReview(Long parkId, User user, ReviewPostDto reviewPostDto) {
+    public void postReview(Long parkId, User user, ReviewPostDto reviewDto) {
 
         Park park = parkRepository.findById(parkId)
                 .orElseThrow(() -> new RuntimeException("해당 장소가 존재하지 않습니다."));
 
+        Review review = new Review();
+        review.postReview(park, user, reviewDto.getDescription(), reviewDto.getStarScore());
 
-        Review review = Review.builder()
-                .park(park)
-                .user(user)
-                .description(reviewPostDto.getDescription())
-                .starScore(reviewPostDto.getStarScore())
-                .build();
-
-        List<ReviewTag> reviewTags = reviewPostDto.getReviewTags().stream()
+        List<ReviewTag> reviewTags = reviewDto.getReviewTags().stream()
                 .map(description -> {
                     ReviewTag reviewTag = new ReviewTag();
                     reviewTag.setTag(Tag.findByDescription(description));
@@ -78,28 +76,21 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public void postReviewV2(Long parkId, User user, ReviewPostDto reviewPostDto) {
+    public void postReviewWithImage(Long parkId, User user, ReviewPostWithImageDto reviewPostWithImageDto) {
 
         Park park = parkRepository.findById(parkId)
                 .orElseThrow(() -> new RuntimeException("해당 장소가 존재하지 않습니다."));
 
-        List<String> imageUrls;
-        if (reviewPostDto.getFiles() == null) {
-            imageUrls = null;
-        }else {
-            imageUrls = awsS3Service.uploadFile(reviewPostDto.getFiles());
-        }
+
+        List<String> imageUrls = awsS3Service.uploadFile(reviewPostWithImageDto.getFiles());
         Review review = new Review();
         em.persist(review);
-//        for (String imageUrl : imageUrls) {
-//            review.getImageUrls().add(imageUrl);
-//        }
-        review.postReview(user, park, reviewPostDto.getDescription(),imageUrls, reviewPostDto.getStarScore());
-        System.out.println("review = " + review.getImageUrls());
+
+        review.postReviewWithImage(user, park, reviewPostWithImageDto.getDescription(),imageUrls, reviewPostWithImageDto.getStarScore());
 
         List<ReviewTag> reviewTags = new ArrayList<>();
 
-        for (String description : reviewPostDto.getReviewTags()) {
+        for (String description : reviewPostWithImageDto.getReviewTags()) {
             ReviewTag reviewTag = new ReviewTag();
             em.persist(reviewTag);
             reviewTag.setTag(Tag.findByDescription(description));
@@ -121,6 +112,33 @@ public class ReviewService {
     }
 
     public void modifyReview(Long reviewId, User user, ReviewPostDto updateForm) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("해당 리뷰가 존재하지 않습니다."));
+
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("리뷰를 수정할 수 있는 권한이 없습니다.");
+        }
+        reviewTagRepository.deleteAllByReview(review);
+
+        List<ReviewTag> reviewTags = new ArrayList<>();
+
+        for (String description : updateForm.getReviewTags()) {
+            ReviewTag reviewTag = new ReviewTag();
+            reviewTag.setReview(review);
+            reviewTag.setTag(Tag.findByDescription(description));
+            reviewTags.add(reviewTag);
+        }
+
+        review.setReviewTags(reviewTags);
+        review.setDescription(updateForm.getDescription());
+        review.setStarScore(updateForm.getStarScore());
+
+        reviewTagRepository.saveAll(reviewTags);
+        reviewRepository.save(review);
+    }
+
+    public void modifyReviewWithImage(Long reviewId, User user, ReviewPostWithImageDto updateForm) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("해당 리뷰가 존재하지 않습니다."));
@@ -165,6 +183,13 @@ public class ReviewService {
                         .reviewId(review.getId())
                         .build()
         ).toList();
+    }
+
+    public List<String> getAllTagType() {
+
+        return Arrays.stream(Tag.values())
+                .map(Tag::getDescription)
+                .collect(Collectors.toList());
     }
 }
 

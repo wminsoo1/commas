@@ -1,6 +1,5 @@
 package tight.commas.domain.park.service;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -8,21 +7,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tight.commas.domain.chat.dto.ChatRoomDto;
 import tight.commas.domain.chat.entity.ChatRoom;
 import tight.commas.domain.chat.repository.ChatRoomRepository;
 import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.api.ParkApi;
-import tight.commas.domain.park.dto.ParkCardDtoV2;
-import tight.commas.domain.park.dto.ParkDto;
-import tight.commas.domain.park.dto.ParkReviewDescriptionDto;
-import tight.commas.domain.park.dto.ParkReviewDetailDto;
+import tight.commas.domain.park.dto.*;
 import tight.commas.domain.park.entity.Park;
+import tight.commas.domain.park.entity.UserParkLike;
 import tight.commas.domain.park.repository.ParkRepository;
+import tight.commas.domain.park.repository.UserParkLikeRepository;
+import tight.commas.domain.review.Tag;
 import tight.commas.domain.review.entity.Review;
+import tight.commas.domain.review.entity.ReviewTag;
 import tight.commas.domain.review.repository.ReviewRepository;
-import tight.commas.domain.userParkLike.entity.UserParkLike;
-import tight.commas.domain.userParkLike.repository.UserParkLikeRepository;
+import tight.commas.domain.review.repository.ReviewTagRepository;
+
 import tight.commas.domain.weather.dto.LocationRequestDto;
 
 import java.util.*;
@@ -35,10 +34,10 @@ public class ParkService {
 
     private final ParkApi parkApi;
     private final ParkRepository parkRepository;
-    private final EntityManager em;
     private final ReviewRepository reviewRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserParkLikeRepository userParkLikeRepository;
+    private final ReviewTagRepository reviewTagRepository;
 
     public Page<ParkDto> getParks(Pageable pageable) {
 
@@ -159,18 +158,32 @@ public class ParkService {
     }
 
     public List<ParkReviewDetailDto> getReviewParkDetailDtos() {
-
+        // 모든 리뷰와 공원을 가져옵니다.
         List<Review> allReviewsWithParksJoinFetch = reviewRepository.findAllReviewsWithParksJoinFetch();
 
-        Map<Park, List<Review>> reviewsByPark  = allReviewsWithParksJoinFetch.stream()
+        // 공원별로 리뷰를 그룹화합니다.
+        Map<Park, List<Review>> reviewsByPark = allReviewsWithParksJoinFetch.stream()
                 .collect(Collectors.groupingBy(Review::getPark));
 
-        return reviewsByPark.entrySet().stream()
+        // 공원과 리뷰 수에 따라 DTO를 생성하고 최대 20개를 정렬하여 선택합니다.
+        List<ParkReviewDetailDto> result = reviewsByPark.entrySet().stream()
                 .sorted((entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size()))
                 .limit(20)
                 .map(entry -> new ParkReviewDetailDto(entry.getKey(), entry.getValue().size()))
                 .toList();
+
+        // 결과 리스트가 비어 있다면 모든 공원을 리턴합니다.
+        if (result.isEmpty()) {
+            // 모든 공원을 가져옵니다. (이 부분에서 findAllParks()는 모든 공원을 조회하는 메서드입니다.)
+            List<Park> allParks = parkRepository.findAll();
+            result = allParks.stream()
+                    .map(park -> new ParkReviewDetailDto(park, 0))  // 리뷰가 없으므로 리뷰 수는 0으로 설정합니다.
+                    .toList();
+        }
+
+        return result;
     }
+
 
     public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // 지구 반지름 (단위: km)
@@ -201,5 +214,34 @@ public class ParkService {
         // 가장 가까운 5개 공원 선택
         int endIndex = Math.min(5, mutableList.size());
         return new ArrayList<>(mutableList.subList(0, endIndex));
+    }
+
+    public List<ParkCardDtoV2> findAllByUserLike(Long userId) {
+
+        List<UserParkLike> userParkLikes = userParkLikeRepository.findAllByUserId(userId);
+
+        return userParkLikes.stream().map(
+                userParkLike -> ParkCardDtoV2.builder()
+                        .parkId(userParkLike.getPark().getId())
+                        .parkName(userParkLike.getPark().getParkName())
+                        .imageUrl(userParkLike.getPark().getImageUrl())
+                        .address(userParkLike.getPark().getAddress())
+                        .reviewTags(findTop3ByReview(userParkLike.getPark()))
+                        .build()
+        ).toList();
+    }
+
+    public List<Tag> findTop3ByReview(Park park) {
+
+        List<ReviewTag> reviewTags = reviewTagRepository.findAllByPark(park);
+
+        Map<Tag, Long> tagCounts = reviewTags.stream()
+                .collect(Collectors.groupingBy(ReviewTag::getTag, Collectors.counting()));
+
+        return tagCounts.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(3)
+                .map(Map.Entry::getKey)
+                .toList();
     }
 }

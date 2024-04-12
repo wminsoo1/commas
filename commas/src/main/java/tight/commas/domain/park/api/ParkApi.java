@@ -9,7 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import tight.commas.domain.Address;
 import tight.commas.domain.park.dto.ParkDto;
-import tight.commas.utils.WebClientUtils;
+import tight.commas.global.utils.WebClientUtils;
 
 import java.util.List;
 import java.util.Map;
