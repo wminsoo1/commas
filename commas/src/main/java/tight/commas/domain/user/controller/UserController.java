@@ -37,4 +37,20 @@ public class UserController {
 
         return ResponseEntity.ok(null);
     }
+
+    @PostMapping("/like/park")
+    public ResponseEntity<Void> likePark(@AuthenticationPrincipal User user, @RequestParam Long parkId) {
+
+        userService.likePark(user, parkId);
+
+        return ResponseEntity.ok(null);
+    }
+
+    @DeleteMapping("/dislike/park")
+    public ResponseEntity<Void> dislikePark(@AuthenticationPrincipal User user, @RequestParam Long parkId) {
+
+        userService.dislikePark(user, parkId);
+
+        return ResponseEntity.ok(null);
+    }
 }
