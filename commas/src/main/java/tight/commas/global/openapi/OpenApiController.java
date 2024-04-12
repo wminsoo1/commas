@@ -1,7 +1,6 @@
 package tight.commas.global.openapi;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +11,7 @@ import tight.commas.domain.park.service.ParkService;
 import tight.commas.domain.toilet.api.ToiletApi;
 import tight.commas.domain.toilet.dto.ToiletDto;
 import tight.commas.domain.weather.api.WeatherApi;
-import tight.commas.domain.weather.dto.WeatherRequestDto;
+import tight.commas.domain.weather.dto.LocationRequestDto;
 import tight.commas.domain.weather.dto.WeatherResponseDto;
 
 import java.io.UnsupportedEncodingException;
@@ -47,8 +46,8 @@ public class OpenApiController {
     }
 
     @GetMapping("/weather")
-    public WeatherResponseDto getWeather(@RequestBody WeatherRequestDto weatherRequestDto) throws UnsupportedEncodingException {
-        return weatherApi.fetchWeatherData(weatherRequestDto);
+    public WeatherResponseDto getWeather(@RequestBody LocationRequestDto locationRequestDto) throws UnsupportedEncodingException {
+        return weatherApi.fetchWeatherData(locationRequestDto);
     }
 
 

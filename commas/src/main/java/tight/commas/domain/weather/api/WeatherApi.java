@@ -3,20 +3,14 @@ package tight.commas.domain.weather.api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
-import tight.commas.domain.weather.dto.WeatherRequestDto;
+import tight.commas.domain.weather.dto.LocationRequestDto;
 import tight.commas.domain.weather.dto.WeatherResponseDto;
 import tight.commas.utils.WebClientUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +33,8 @@ public class WeatherApi {
     @Autowired
     private WebClientUtils webClientUtils;
 
-    public WeatherResponseDto fetchWeatherData(WeatherRequestDto weatherRequestDto) throws UnsupportedEncodingException {
-        String weatherUrl = String.format("%s?lat=%s&lon=%s&appid=%s&lang=%s", weatherBaseUrl, weatherRequestDto.getLatitude(), weatherRequestDto.getLongitude(), apiKey, language);
+    public WeatherResponseDto fetchWeatherData(LocationRequestDto locationRequestDto) throws UnsupportedEncodingException {
+        String weatherUrl = String.format("%s?lat=%s&lon=%s&appid=%s&lang=%s", weatherBaseUrl, locationRequestDto.getLatitude(), locationRequestDto.getLongitude(), apiKey, language);
         String encodedSidoName = URLEncoder.encode(sidoName, "UTF-8");
         String pmUrl = String.format("%s?sidoName=%s&pageNo=%s&numOfRows=%s&returnType=%s&serviceKey=%s&ver=%s",pmBaseUrl, encodedSidoName, pageNo, numOfRows, returnType, serviceKey, version);
 
