@@ -1,7 +1,10 @@
 package tight.commas.domain.park.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import tight.commas.domain.Address;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.review.Tag;
@@ -10,6 +13,9 @@ import tight.commas.domain.review.entity.ReviewTag;
 
 import java.util.List;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class ParkCardDtoV2 {
 

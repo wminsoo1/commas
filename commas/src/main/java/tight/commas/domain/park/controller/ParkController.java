@@ -53,6 +53,13 @@ public class ParkController {
         List<ParkReviewDetailDto> closestParks = parkService.selectClosestParks(locationRequestDto, parkReviewDetailDtoList);
 
         return closestParks;
+    }
 
+    @GetMapping("/like/user")
+    public ResponseEntity<List<ParkCardDtoV2>> findAllByUserLike(@RequestParam Long userId) {
+
+        List<ParkCardDtoV2> parks = parkService.findAllByUserLike(userId);
+
+        return ResponseEntity.ok(parks);
     }
 }
