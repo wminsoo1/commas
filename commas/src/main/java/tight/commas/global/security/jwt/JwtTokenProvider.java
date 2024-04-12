@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import tight.commas.global.auth.entity.Token;
+import tight.commas.global.auth.repository.TokenRepository;
 
 import java.util.Base64;
 import java.util.Date;
@@ -28,6 +30,8 @@ public class JwtTokenProvider {
     private long refreshExpiration;
 
     private final UserDetailsService userDetailsService;
+
+    private final TokenRepository tokenRepository;
 
     @PostConstruct
     protected void init() {
@@ -74,12 +78,24 @@ public class JwtTokenProvider {
         return request.getHeader("Authorization");
     }
 
-
     public boolean isTokenValid(String token) {
         try {
             JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(jwtKey).build();
             Jws<Claims> claims = jwtParser.parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
+
+            Token validToken = tokenRepository.findByToken(token)
+                    .orElse(null);
+
+            if (validToken == null) {
+                return false;
+            }
+
+            if (claims.getBody().getExpiration().before(new Date())) {
+                validToken.setExpired(true);
+                tokenRepository.save(validToken);
+            }
+            return (!validToken.isExpired);
+
         } catch (Exception e) {
             return false;
         }
