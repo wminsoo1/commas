@@ -52,7 +52,7 @@ public class ParkApiController {
         return ResponseEntity.ok(parkCard);
     }
 
-    @GetMapping("/recommend")
+    @PostMapping("/recommend")
     public List<ParkReviewDetailDto> recommendPark(@RequestBody LocationRequestDto locationRequestDto) {
         List<ParkReviewDetailDto> parkReviewDetailDtoList = parkService.getReviewParkDetailDtos();
 
