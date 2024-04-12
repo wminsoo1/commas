@@ -29,7 +29,6 @@ public class ParkReviewDetailDto {
 
     private int reviewCount;
 
-//    List<ParkReviewDescriptionDto> parkReviewDescriptionDtos;
 
     public ParkReviewDetailDto(Park park, int reviewCount) {
         this.parkId = park.getId();
@@ -40,8 +39,6 @@ public class ParkReviewDetailDto {
         this.plant = park.getPlant();
         this.mainEquip = park.getMainEquip();
         this.outLine = park.getOutLine();
-        this.likeStatus = park.getLikeStatus();
         this.reviewCount = reviewCount;
     }
-
 }

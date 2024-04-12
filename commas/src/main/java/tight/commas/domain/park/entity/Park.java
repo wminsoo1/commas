@@ -40,8 +40,6 @@ public class Park extends BaseTimeEntity {
     @Column(length = 1000)
     private String outLine; //개요
 
-    private Boolean likeStatus;
-
     public void saveParkInfo(String name, String content, Address address, String mainEquip, String mainPlant, String imageUrl) {
         this.parkName = name;
         this.outLine = content;
