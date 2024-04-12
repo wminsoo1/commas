@@ -183,5 +183,12 @@ public class ReviewService {
                         .build()
         ).toList();
     }
+
+    public List<String> getAllTagType() {
+
+        return Arrays.stream(Tag.values())
+                .map(Tag::getDescription)
+                .collect(Collectors.toList());
+    }
 }
 
