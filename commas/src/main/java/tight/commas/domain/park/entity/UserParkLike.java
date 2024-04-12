@@ -1,4 +1,4 @@
-package tight.commas.domain.userParkLike;
+package tight.commas.domain.park.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import tight.commas.domain.BaseTimeEntity;
-import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.user.entity.User;
 
 @Entity

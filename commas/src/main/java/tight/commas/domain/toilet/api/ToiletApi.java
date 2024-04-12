@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
-import tight.commas.utils.WebClientUtils;
+import tight.commas.global.utils.WebClientUtils;
 import tight.commas.domain.toilet.dto.ToiletDto;
 
 import java.util.List;

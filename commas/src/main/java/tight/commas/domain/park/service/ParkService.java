@@ -1,6 +1,5 @@
 package tight.commas.domain.park.service;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -8,19 +7,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tight.commas.domain.chat.dto.ChatRoomDto;
 import tight.commas.domain.chat.entity.ChatRoom;
 import tight.commas.domain.chat.repository.ChatRoomRepository;
 import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.api.ParkApi;
-import tight.commas.domain.park.dto.ParkCardDtoV2;
-import tight.commas.domain.park.dto.ParkDto;
-import tight.commas.domain.park.dto.ParkReviewDescriptionDto;
-import tight.commas.domain.park.dto.ParkReviewDetailDto;
+import tight.commas.domain.park.dto.*;
 import tight.commas.domain.park.entity.Park;
+import tight.commas.domain.park.entity.UserParkLike;
 import tight.commas.domain.park.repository.ParkRepository;
+import tight.commas.domain.park.repository.UserParkLikeRepository;
+import tight.commas.domain.review.Tag;
 import tight.commas.domain.review.entity.Review;
+import tight.commas.domain.review.entity.ReviewTag;
 import tight.commas.domain.review.repository.ReviewRepository;
+import tight.commas.domain.review.repository.ReviewTagRepository;
+
 import tight.commas.domain.weather.dto.LocationRequestDto;
 
 import java.util.*;
@@ -33,9 +34,10 @@ public class ParkService {
 
     private final ParkApi parkApi;
     private final ParkRepository parkRepository;
-    private final EntityManager em;
     private final ReviewRepository reviewRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final UserParkLikeRepository userParkLikeRepository;
+    private final ReviewTagRepository reviewTagRepository;
 
     public Page<ParkDto> getParks(Pageable pageable) {
 
@@ -208,5 +210,34 @@ public class ParkService {
         // 가장 가까운 5개 공원 선택
         int endIndex = Math.min(5, mutableList.size());
         return new ArrayList<>(mutableList.subList(0, endIndex));
+    }
+
+    public List<ParkCardDtoV2> findAllByUserLike(Long userId) {
+
+        List<UserParkLike> userParkLikes = userParkLikeRepository.findAllByUserId(userId);
+
+        return userParkLikes.stream().map(
+                userParkLike -> ParkCardDtoV2.builder()
+                        .parkId(userParkLike.getPark().getId())
+                        .parkName(userParkLike.getPark().getParkName())
+                        .imageUrl(userParkLike.getPark().getImageUrl())
+                        .address(userParkLike.getPark().getAddress())
+                        .reviewTags(findTop3ByReview(userParkLike.getPark()))
+                        .build()
+        ).toList();
+    }
+
+    public List<Tag> findTop3ByReview(Park park) {
+
+        List<ReviewTag> reviewTags = reviewTagRepository.findAllByPark(park);
+
+        Map<Tag, Long> tagCounts = reviewTags.stream()
+                .collect(Collectors.groupingBy(ReviewTag::getTag, Collectors.counting()));
+
+        return tagCounts.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(3)
+                .map(Map.Entry::getKey)
+                .toList();
     }
 }

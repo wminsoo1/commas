@@ -1,4 +1,4 @@
-package tight.commas.config;
+package tight.commas.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
