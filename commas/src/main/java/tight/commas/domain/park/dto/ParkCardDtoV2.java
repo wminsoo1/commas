@@ -17,6 +17,7 @@ public class ParkCardDtoV2 {
     private String parkName;
     private Address address;
     private String imageUrl;
+    private Boolean likeStatus;
     private List<Tag> reviewTags;
 
     public ParkCardDtoV2(Review review) {
