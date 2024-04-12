@@ -1,34 +1,26 @@
 package tight.commas.domain.park.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tight.commas.domain.park.ParkSearchCondition;
 import tight.commas.domain.park.dto.ParkCardDtoV2;
-import tight.commas.domain.park.dto.ParkDto;
 import tight.commas.domain.park.dto.ParkReviewDetailDto;
 import tight.commas.domain.park.service.ParkService;
-import tight.commas.domain.review.Tag;
 import tight.commas.domain.weather.dto.LocationRequestDto;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/park")
-public class ParkApiController {
+@RequiredArgsConstructor
+public class ParkController {
 
     private final ParkService parkService;
 
-    @Autowired
-    public ParkApiController(ParkService parkService) {
-        this.parkService = parkService;
-    }
-
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<Page<ParkCardDtoV2>> searchParks(
             @RequestBody ParkSearchCondition condition,
             Pageable pageable) {
