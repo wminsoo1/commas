@@ -9,5 +9,5 @@ import java.util.List;
 @Data
 public class ParkSearchCondition {
     private String parkName;
-    private List<Tag> tags = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
 }

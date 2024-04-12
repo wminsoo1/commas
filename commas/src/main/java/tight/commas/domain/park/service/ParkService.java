@@ -226,7 +226,8 @@ public class ParkService {
                         .parkName(userParkLike.getPark().getParkName())
                         .imageUrl(userParkLike.getPark().getImageUrl())
                         .address(userParkLike.getPark().getAddress())
-                        .reviewTags(findTop3ByReview(userParkLike.getPark()))
+                        .reviewTags(findTop3ByReview(userParkLike.getPark()).stream().map(Tag::getDescription).toList())
+                        .likeStatus(true)
                         .build()
         ).toList();
     }

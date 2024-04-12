@@ -20,13 +20,13 @@ import tight.commas.domain.park.dto.QParkCardDto;
 import tight.commas.domain.park.dto.QParkCardDtoV2;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.park.entity.QPark;
+import tight.commas.domain.park.entity.UserParkLike;
 import tight.commas.domain.review.Tag;
 import tight.commas.domain.review.entity.QReview;
 import tight.commas.domain.review.entity.QReviewTag;
 import tight.commas.domain.review.entity.Review;
 import tight.commas.domain.review.entity.ReviewTag;
-import tight.commas.domain.userParkLike.entity.UserParkLike;
-import tight.commas.domain.userParkLike.repository.UserParkLikeRepository;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +68,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                 .select(reviewTag)
                 .from(reviewTag)
                 .leftJoin(reviewTag.review, review)
-                .where(review.in(fetch), tagEq(condition.getTags()))
+                .where(review.in(fetch), tagEq(condition.getTags().stream().map(Tag::findByDescription).collect(Collectors.toList())))
                 .fetchJoin()
                 .fetch();
 
@@ -115,7 +115,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
     public Page<ParkCardDtoV2> parkCardSearchV2(ParkSearchCondition condition, Pageable pageable) {
         List<Review> reviews = findByParkNameContaining(condition, pageable);
 
-        List<Tag> tags = condition.getTags() != null ? condition.getTags() : Collections.emptyList();
+        List<Tag> tags = condition.getTags() != null ?condition.getTags().stream().map(Tag::findByDescription).toList() : Collections.emptyList();
 
         if (!tags.isEmpty()) {
             reviews = reviews.stream()
@@ -167,7 +167,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
         List<Long> reviewIds = queryFactory
                 .select(reviewTag.review.id)
                 .from(reviewTag)
-                .where(reviewTag.tag.in(condition.getTags()))
+                .where(reviewTag.tag.in(condition.getTags().stream().map(Tag::findByDescription).collect(Collectors.toList())))
                 .groupBy(reviewTag.review.id)
                 .having(reviewTag.tag.count().eq((long) condition.getTags().size()))
                 .fetch();
@@ -257,6 +257,7 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
         Map<Park, List<Review>> parkReviewMap  = reviewList.stream()
                 .collect(Collectors.groupingBy(Review::getPark));
 
+
         List<ParkCardDtoV2> parkCardDtoList  = parkReviewMap.entrySet().stream()
                 .map(entry -> {
                     Park keyPark = entry.getKey();
@@ -272,14 +273,16 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                             .map(Map.Entry::getKey)
                             .toList();
 
+
                     return new ParkCardDtoV2(keyPark, topTags);
                 }).toList();
-
-        List<Tag> tags = condition.getTags() != null ? condition.getTags() : Collections.emptyList();
-
+        List<Tag> tags = condition.getTags() != null ? condition.getTags().stream().map(Tag::findByDescription).toList() : Collections.emptyList();
+        for (Tag tag : tags) {
+            System.out.println("tag = " + tag);
+        }
         if (!tags.isEmpty()) {
             parkCardDtoList = parkCardDtoList.stream()
-                    .filter(parkCardDtoV2 -> parkCardDtoV2.getReviewTags().containsAll(tags))
+                    .filter(parkCardDtoV2 -> parkCardDtoV2.getReviewTags().stream().map(Tag::findByDescription).toList().containsAll(tags))
                     .toList();
         }
 
