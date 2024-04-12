@@ -13,6 +13,7 @@ import tight.commas.domain.park.dto.ParkDto;
 import tight.commas.domain.park.dto.ParkReviewDetailDto;
 import tight.commas.domain.park.service.ParkService;
 import tight.commas.domain.review.Tag;
+import tight.commas.domain.weather.dto.LocationRequestDto;
 
 import java.util.List;
 
@@ -49,5 +50,17 @@ public class ParkApiController {
             Pageable pageable) {
         Page<ParkCardDtoV2> parkCard = parkService.getParkCard(pageable);
         return ResponseEntity.ok(parkCard);
+    }
+
+    @GetMapping("/main")
+    public List<ParkReviewDetailDto> recommendPark(@RequestBody LocationRequestDto locationRequestDto) {
+        // 리뷰 많은 순서대로 20개 불러오기
+        List<ParkReviewDetailDto> parkReviewDetailDtoList = parkService.getReviewParkDetailDtos();
+
+        // 가장 가까운 5개 공원 선택
+        List<ParkReviewDetailDto> closestParks = parkService.selectClosestParks(locationRequestDto, parkReviewDetailDtoList);
+
+        return closestParks;
+
     }
 }

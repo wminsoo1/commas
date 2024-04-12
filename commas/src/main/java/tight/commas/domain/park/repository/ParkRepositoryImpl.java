@@ -67,17 +67,14 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
 
         List<ParkCardDto> parkCardDtos = fetch.stream()
                 .map(review -> {
-                    // 현재 리뷰에 대한 ReviewTag 리스트를 가져옵니다.
                     List<ReviewTag> tagsForReview = reviewTags.stream()
                             .filter(tag -> tag.getReview().getId().equals(review.getId()))
                             .collect(Collectors.toList());
 
-                    // ReviewTag가 없는 경우는 해당 리뷰를 제외합니다.
                     if (tagsForReview.isEmpty()) {
                         return null;
                     }
 
-                    // ReviewTag가 있는 경우 ParkCardDto를 생성합니다.
                     return new ParkCardDto(
                             review.getPark().getParkName(),
                             review.getPark().getAddress(),
@@ -85,72 +82,8 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                             tagsForReview
                     );
                 })
-                .filter(parkCardDto -> parkCardDto != null)  // null인 경우는 제외합니다.
+                .filter(parkCardDto -> parkCardDto != null)
                 .toList();
-
-//        List<ParkCardDto> parkCardDtos = reviewTags.stream()
-//                .map(reviewTag ->  new ParkCardDto(
-//                        reviewTag.getReview().getPark().getParkName(),
-//                        reviewTag.getReview().getPark().getAddress(),
-//                        reviewTag.getReview().getPark().getImageUrl(),
-//                        reviewTag.getReview().getReviewTags() //n + 1 문제 터짐
-//                )).distinct()
-//                .collect(Collectors.toList());
-
-
-
-//        List<ParkCardDto> parkCardDtos = queryFactory
-//                .select(new QParkCardDto(
-//                        park.parkName,
-//                        park.address,
-//                        park.imageUrl))
-//                .from(park)
-//                .leftJoin(park, review.park)
-//                .where(park.parkName.contains(condition.getParkName()))
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        for (ParkCardDto parkCardDto : parkCardDtos) {
-//            List<ReviewTag> reviewTags = queryFactory
-//                    .selectFrom(reviewTag)
-//                    .leftJoin(reviewTag.review, review)
-//                    .where(review.park.eq(parkCardDto.getParkName())) // 또는 review.park.eq(parkCardDto.getParkName())
-//                    .fetch();
-//            parkCardDto.setReviewTags(reviewTags);
-//        }
-
-//        List<ParkCardDto> parkCardDto1s = queryFactory
-//                .select(new QParkCardDto(
-//                        park.parkName,
-//                        park.address,
-//                        park.imageUrl,
-//                        JPAExpressions
-//                                .select(reviewTag.tag)
-//                                .from(reviewTag)
-//                                .where(reviewTag.review.eq(review))
-//                                ))
-//                .from(review)
-//                .leftJoin(review.park, park)
-//                .where(park.parkName.contains(condition.getParkName()))
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-
-
-//        List<ParkCardDto> parkCardDtos = queryFactory
-//                .select(Projections.constructor(ParkCardDto.class,
-//                        review.park.parkName,
-//                        review.park.address,
-//                        review.park.imageUrl,
-//                        Projections.list(Projections.constructor(ReviewTagDto.class,
-//                                reviewTag.tag))))
-//                .from(review)
-//                .leftJoin(review.park)
-//                .leftJoin(review.reviewTags, reviewTag)
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
 
         return new PageImpl<>(parkCardDtos, pageable, parkCardDtos.size());
 
@@ -175,10 +108,8 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
     public Page<ParkCardDtoV2> parkCardSearchV2(ParkSearchCondition condition, Pageable pageable) {
         List<Review> reviews = findByParkNameContaining(condition, pageable);
 
-        // condition의 태그가 null이면 빈 리스트로 초기화합니다.
         List<Tag> tags = condition.getTags() != null ? condition.getTags() : Collections.emptyList();
 
-        // condition의 태그가 null이 아닌 경우에만 필터링을 수행합니다.
         if (!tags.isEmpty()) {
             reviews = reviews.stream()
                     .filter(review -> review.getTags().containsAll(tags)) //batch 적용
@@ -320,10 +251,8 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
                     return new ParkCardDtoV2(keyPark, topTags);
                 }).toList();
 
-        // condition의 태그가 null이면 빈 리스트로 초기화합니다.
         List<Tag> tags = condition.getTags() != null ? condition.getTags() : Collections.emptyList();
 
-        // condition의 태그가 null이 아닌 경우에만 필터링을 수행합니다.
         if (!tags.isEmpty()) {
             parkCardDtoList = parkCardDtoList.stream()
                     .filter(parkCardDtoV2 -> parkCardDtoV2.getReviewTags().containsAll(tags))
@@ -332,28 +261,4 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
 
         return new PageImpl<>(parkCardDtoList, pageable, parkCardDtoList.size());
     }
-
-
-//    @Override
-//    public Page<ParkDto> search(ParkSearchCondition condition, Pageable pageable) {
-//        List<ParkDto> fetch = queryFactory
-//                .select(new QParkDto(
-//                        park.parkName,
-//                        park.outLine,
-//                        park.address,
-//                        park.mainEquip,
-//                        park.plant,
-//                        park.imageUrl))
-//                .from(park)
-//                .where(park.parkName.contains(condition.getParkName()))
-//                .limit(pageable.getPageSize())
-//                .offset(pageable.getOffset())
-//                .fetch();
-//
-//        JPAQuery<Park> countQuery = queryFactory
-//                .selectFrom(park)
-//                .where(park.parkName.contains(condition.getParkName()));
-//
-//        return PageableExecutionUtils.getPage(fetch, pageable, countQuery::fetchCount);
-//    }
 }
