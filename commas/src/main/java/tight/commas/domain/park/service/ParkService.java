@@ -37,17 +37,9 @@ public class ParkService {
     private final ReviewRepository reviewRepository;
     private final ChatRoomRepository chatRoomRepository;
 
-    public Page<ParkDto> getAllParks(int pageSize) {
-        int currentPageNum = 1;
-        int totalPages = 0;
+    public Page<ParkDto> getParks(Pageable pageable) {
 
-        Page<ParkDto> parkPage = parkApi.getPagedParkInfo(currentPageNum, pageSize);
-        List<ParkDto> parkDtoList = parkPage.getContent();
-        totalPages = parkPage.getTotalPages();
-
-
-        // 모든 데이터를 합쳐서 새로운 Page 객체 생성하여 반환
-        return new PageImpl<>(parkDtoList, PageRequest.of(0, parkDtoList.size()), totalPages);
+        return parkApi.getPagedParkInfo(pageable.getPageNumber(), pageable.getPageSize());
     }
 
     public Page<ParkDto> getAllNaturalTourismInfo(int pageSize) {

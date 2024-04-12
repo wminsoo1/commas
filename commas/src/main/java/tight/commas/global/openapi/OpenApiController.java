@@ -2,6 +2,7 @@ package tight.commas.global.openapi;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tight.commas.domain.drink.api.DrinkApi;
@@ -29,9 +30,9 @@ public class OpenApiController {
 
     @GetMapping("/park")
     public ResponseEntity<Page<ParkDto>> getPagedParkInfo(
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+            Pageable pageable) {
 
-        Page<ParkDto> parkPage = parkService.getAllParks(pageSize);
+        Page<ParkDto> parkPage = parkService.getParks(pageable);
         parkService.saveAllParksFromDto(parkPage);
         return ResponseEntity.ok(parkPage);
     }
