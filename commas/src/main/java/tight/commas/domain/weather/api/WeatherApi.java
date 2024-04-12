@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import tight.commas.domain.weather.dto.LocationRequestDto;
 import tight.commas.domain.weather.dto.WeatherResponseDto;
-import tight.commas.utils.WebClientUtils;
+import tight.commas.global.utils.WebClientUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
