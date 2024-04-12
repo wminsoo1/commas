@@ -52,12 +52,10 @@ public class ParkApiController {
         return ResponseEntity.ok(parkCard);
     }
 
-    @GetMapping("/main")
+    @GetMapping("/recommend")
     public List<ParkReviewDetailDto> recommendPark(@RequestBody LocationRequestDto locationRequestDto) {
-        // 리뷰 많은 순서대로 20개 불러오기
         List<ParkReviewDetailDto> parkReviewDetailDtoList = parkService.getReviewParkDetailDtos();
 
-        // 가장 가까운 5개 공원 선택
         List<ParkReviewDetailDto> closestParks = parkService.selectClosestParks(locationRequestDto, parkReviewDetailDtoList);
 
         return closestParks;
