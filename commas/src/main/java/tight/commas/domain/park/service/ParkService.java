@@ -152,18 +152,32 @@ public class ParkService {
     }
 
     public List<ParkReviewDetailDto> getReviewParkDetailDtos() {
-
+        // 모든 리뷰와 공원을 가져옵니다.
         List<Review> allReviewsWithParksJoinFetch = reviewRepository.findAllReviewsWithParksJoinFetch();
 
-        Map<Park, List<Review>> reviewsByPark  = allReviewsWithParksJoinFetch.stream()
+        // 공원별로 리뷰를 그룹화합니다.
+        Map<Park, List<Review>> reviewsByPark = allReviewsWithParksJoinFetch.stream()
                 .collect(Collectors.groupingBy(Review::getPark));
 
-        return reviewsByPark.entrySet().stream()
+        // 공원과 리뷰 수에 따라 DTO를 생성하고 최대 20개를 정렬하여 선택합니다.
+        List<ParkReviewDetailDto> result = reviewsByPark.entrySet().stream()
                 .sorted((entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size()))
                 .limit(20)
                 .map(entry -> new ParkReviewDetailDto(entry.getKey(), entry.getValue().size()))
                 .toList();
+
+        // 결과 리스트가 비어 있다면 모든 공원을 리턴합니다.
+        if (result.isEmpty()) {
+            // 모든 공원을 가져옵니다. (이 부분에서 findAllParks()는 모든 공원을 조회하는 메서드입니다.)
+            List<Park> allParks = parkRepository.findAll();
+            result = allParks.stream()
+                    .map(park -> new ParkReviewDetailDto(park, 0))  // 리뷰가 없으므로 리뷰 수는 0으로 설정합니다.
+                    .toList();
+        }
+
+        return result;
     }
+
 
     public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // 지구 반지름 (단위: km)
