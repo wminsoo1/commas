@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.park.repository.ParkRepository;
+import tight.commas.domain.review.repository.ReviewRepository;
 import tight.commas.domain.user.entity.User;
 import tight.commas.domain.user.repository.UserRepository;
 import tight.commas.domain.park.entity.UserParkLike;
@@ -24,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final ParkRepository parkRepository;
+    private final ReviewRepository reviewRepository;
     private final UserParkLikeRepository userParkLikeRepository;
 
     public void updateNickname(User user, String nickname) {
@@ -49,7 +51,12 @@ public class UserService {
 
         List<Token> validTokens = tokenRepository.findAllValidTokenByUser(user);
 
+        reviewRepository.deleteAll(reviewRepository.findAllByUserId(user.getId()));
+
+        userParkLikeRepository.deleteAll(userParkLikeRepository.findAllByUserId(user.getId()));
+
         tokenRepository.deleteAll(validTokens);
+
         userRepository.delete(foundUser);
     }
 
