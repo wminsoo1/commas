@@ -58,5 +58,39 @@
 ### 📎 회원가입/로그인 및 쉼터 추천을 위한 사용자 위치 정보 접근 동의 페이지
 
 
-<img width="747" alt="스크린샷 2024-04-26 오후 8 18 13" src="https://github.com/wminsoo1/commas/assets/81519167/32165fa2-afc2-4954-8a0a-1625033a크
+<img width="747" alt="스크린샷 2024-04-26 오후 8 18 13" src="https://github.com/wminsoo1/commas/assets/81519167/32165fa2-afc2-4954-8a0a-1625033a36ab">
+
+
+<br/>
+
+<br/>
+
+<br/>
+
+### 📎 메인페이지 및 쉼터 리스트 조회 페이지  
+
+<img width="738" alt="스크린샷 2024-04-26 오후 8 22 35" src="https://github.com/wminsoo1/commas/assets/81519167/f66526be-bdaa-46fd-b976-d09de70f68f1">
+
+
+<br/>
+
+<br/>
+
+<br/>
+
+### 📎 쉼터 상세 페이지 및 마이페이지 
+
+<img width="706" alt="스크린샷 2024-04-26 오후 8 25 37" src="https://github.com/wminsoo1/commas/assets/81519167/b2c417e5-deb7-42bc-a1e5-c68b4ff64980">
+
+
+<br/>
+
+<br/>
+
+<br/>
+
+
+
+
+## Frontend 개발 링크
 https://github.com/hyo-4
