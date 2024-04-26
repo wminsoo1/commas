@@ -92,5 +92,4 @@
 
 
 
-## Frontend 개발 링크
-https://github.com/hyo-4
+## C. Frontend 개발 링크
