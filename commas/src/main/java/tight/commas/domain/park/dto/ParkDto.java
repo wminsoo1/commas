@@ -2,11 +2,14 @@ package tight.commas.domain.park.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.GeneratedValue;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import tight.commas.domain.Address;
 
 @Data
 public class ParkDto {
+    @Size(max = 20, message = "최대 20글자입니다")
     private String name;
     private String content;
     private String mainEquip;
@@ -14,6 +17,9 @@ public class ParkDto {
     private String imageUrl;
     private Address address;
     private String lang;
+
+    public ParkDto() {
+    }
 
     @QueryProjection
     public ParkDto(String lang, String name, Address address) {

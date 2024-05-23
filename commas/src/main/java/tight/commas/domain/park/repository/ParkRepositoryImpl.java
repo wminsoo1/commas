@@ -26,6 +26,8 @@ import tight.commas.domain.review.entity.QReview;
 import tight.commas.domain.review.entity.QReviewTag;
 import tight.commas.domain.review.entity.Review;
 import tight.commas.domain.review.entity.ReviewTag;
+import tight.commas.domain.review.exception.ReviewErrorCode;
+import tight.commas.global.exception.BadRequestException;
 
 
 import java.util.Collections;
@@ -253,6 +255,9 @@ public class ParkRepositoryImpl implements ParkRepositoryCustom{
     @Override //파크 검색 및 태그 필터
     public Page<ParkCardDtoV2> parkCardSearchV4(ParkSearchCondition condition, Pageable pageable, Long userId) {
         List<Review> reviewList = findByParkNameContaining(condition, pageable);
+        if (reviewList.isEmpty()) {
+            throw new BadRequestException(ReviewErrorCode.INVALID_REVIEW_DATA);
+        }
 
         Map<Park, List<Review>> parkReviewMap  = reviewList.stream()
                 .collect(Collectors.groupingBy(Review::getPark));

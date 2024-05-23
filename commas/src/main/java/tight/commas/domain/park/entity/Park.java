@@ -1,7 +1,10 @@
 package tight.commas.domain.park.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import tight.commas.domain.Address;
 import tight.commas.domain.BaseTimeEntity;
 import tight.commas.domain.chat.entity.ChatRoom;
@@ -12,6 +15,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Park extends BaseTimeEntity {
 
     @Id @GeneratedValue
@@ -21,6 +27,7 @@ public class Park extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
 
     private String parkName;
 

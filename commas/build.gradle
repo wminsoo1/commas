@@ -65,6 +65,12 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	implementation('org.springframework.boot:spring-boot-starter-validation')
+
+	runtimeOnly 'com.h2database:h2' // H2 데이터베이스 의존성 추가
+	implementation 'com.google.code.gson:gson'
+
 }
 
 tasks.named('test') {
