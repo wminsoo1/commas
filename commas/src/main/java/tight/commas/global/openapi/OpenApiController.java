@@ -1,13 +1,18 @@
 package tight.commas.global.openapi;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tight.commas.domain.drink.api.DrinkApi;
 import tight.commas.domain.drink.dto.DrinkDto;
 import tight.commas.domain.park.dto.ParkDto;
+import tight.commas.domain.park.dto.ParkDtos;
 import tight.commas.domain.park.service.ParkService;
 import tight.commas.domain.toilet.api.ToiletApi;
 import tight.commas.domain.toilet.dto.ToiletDto;
@@ -18,6 +23,7 @@ import tight.commas.domain.weather.dto.WeatherResponseDto;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/openapi")
@@ -33,8 +39,14 @@ public class OpenApiController {
             Pageable pageable) {
 
         Page<ParkDto> parkPage = parkService.getParks(pageable);
-        parkService.saveAllParksFromDto(parkPage);
         return ResponseEntity.ok(parkPage);
+    }
+
+    @PostMapping("/park")
+    public ResponseEntity<HttpStatus> addPagedParkInfo(@RequestBody @Validated ParkDtos parkDtos) {
+
+        parkService.saveAllParksFromDto(parkDtos.getParkDtos());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/natural-tourism")
