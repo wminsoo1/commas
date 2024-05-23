@@ -14,6 +14,7 @@ import tight.commas.domain.park.api.ParkApi;
 import tight.commas.domain.park.dto.*;
 import tight.commas.domain.park.entity.Park;
 import tight.commas.domain.park.entity.UserParkLike;
+import tight.commas.domain.park.exception.ParkErrorCode;
 import tight.commas.domain.park.repository.ParkRepository;
 import tight.commas.domain.park.repository.UserParkLikeRepository;
 import tight.commas.domain.review.Tag;
@@ -23,9 +24,15 @@ import tight.commas.domain.review.repository.ReviewRepository;
 import tight.commas.domain.review.repository.ReviewTagRepository;
 
 import tight.commas.domain.weather.dto.LocationRequestDto;
+import tight.commas.global.exception.BadRequestException;
+import tight.commas.global.exception.BusinessException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static tight.commas.domain.park.exception.ParkErrorCode.PARK_NOT_FOUND;
+import static tight.commas.domain.park.exception.ParkErrorCode.USERPARK_NOT_FOUND;
+import static tight.commas.domain.review.exception.ReviewErrorCode.INVALID_REVIEW_DATA;
 
 @Service
 @Transactional
@@ -81,8 +88,7 @@ public class ParkService {
     }
 
     @Transactional
-    public void saveAllParksFromDto(Page<ParkDto> parkDtoPage) {
-        List<ParkDto> parkDtoList = parkDtoPage.getContent();
+    public void saveAllParksFromDto(List<ParkDto> parkDtoList) {
         for (ParkDto parkDto : parkDtoList) {
             // 이름으로 Park 엔티티 찾기
             Park existingPark = parkRepository.findByParkName(parkDto.getName());
@@ -138,19 +144,42 @@ public class ParkService {
 
     //파크 상세 조회
     public ParkReviewDetailDto getReviewParkDetailDto(Long parkId, Long userId) {
-        Park findPark = parkRepository.findById(parkId).orElse(null);
+        long startTime = System.currentTimeMillis();
+
+        Park findPark = parkRepository.findById(parkId).orElseThrow(() -> new BadRequestException(PARK_NOT_FOUND));
+        long afterFindParkTime = System.currentTimeMillis();
+        System.out.println("Time taken to find park: " + (afterFindParkTime - startTime) + "ms");
+
         List<Review> fetchJoinAllByParkId = reviewRepository.findFetchJoinAllByParkId(parkId);
+        long afterFetchJoinTime = System.currentTimeMillis();
+        System.out.println("Time taken to fetch reviews: " + (afterFetchJoinTime - afterFindParkTime) + "ms");
+
+        if (fetchJoinAllByParkId.isEmpty()) {
+            throw new BadRequestException(INVALID_REVIEW_DATA);
+        }
+
         ParkReviewDetailDto parkReviewDetailDto = new ParkReviewDetailDto(findPark, fetchJoinAllByParkId.size());
 
         List<UserParkLike> userParkLikes = userParkLikeRepository.findByUserId(userId);
+        long afterFindUserLikesTime = System.currentTimeMillis();
+        System.out.println("Time taken to find user likes: " + (afterFindUserLikesTime - afterFetchJoinTime) + "ms");
+
+        if (userParkLikes.isEmpty()) {
+            throw new BadRequestException(USERPARK_NOT_FOUND);
+        }
+
         for (UserParkLike userParkLike : userParkLikes) {
             if (userParkLike.getPark().getId().equals(findPark.getId())) {
                 parkReviewDetailDto.setLikeStatus(true);
             }
         }
 
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total time taken: " + (endTime - startTime) + "ms");
+
         return parkReviewDetailDto;
     }
+
 
     //파크카드 조회
     public Page<ParkCardDtoV2> getParkCard(Pageable pageable, Long userId) {
